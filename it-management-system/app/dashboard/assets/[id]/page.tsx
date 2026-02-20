@@ -80,22 +80,20 @@ export default async function AssetDetailPage({
       <div className="grid gap-6 md:grid-cols-2">
         {/* Asset Details Card */}
         <Card className="border-border">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <HardDrive className="h-4 w-4 text-muted-foreground" />
-              <CardTitle className="text-base font-semibold text-foreground">
-                Asset Information
-              </CardTitle>
-               <Button asChild variant="default">
-          <Link href={`/dashboard/assets/${id}/edit`}>
-            <Pencil className="h-4 w-4" />
-            <span className="sr-only">Edit asset</span>
-          </Link>
-        </Button>
-            </div>
-            
-            <CardDescription>General details about this asset</CardDescription>
-          </CardHeader>
+          <CardHeader className="flex items-center justify-between">
+  <div className="flex items-center gap-2">
+    <HardDrive className="h-4 w-4 text-muted-foreground" />
+    <CardTitle className="text-base font-semibold text-foreground">
+      Asset Information
+    </CardTitle>
+  </div>
+  <Button asChild variant="default">
+    <Link href={`/dashboard/assets/${id}/edit`}>
+      <Pencil className="h-4 w-4" />
+      <span className="sr-only">Edit asset</span>
+    </Link>
+  </Button>
+</CardHeader>
           <CardContent>
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-3">
