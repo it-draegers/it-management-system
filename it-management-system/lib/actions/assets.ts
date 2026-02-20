@@ -21,6 +21,12 @@ const assetSchema = z.object({
     "Printer",
     "Other",
   ]),
+   location: z.enum([
+    "SSF",
+    "MP",
+    "LA",
+    "Home"
+  ]),
   brand: z.string().optional().default(""),
   model: z.string().optional().default(""),
   serialNumber: z.string().optional().default(""),
@@ -36,6 +42,7 @@ export type Asset = {
   _id: string
   name: string
   type: string
+  location: "MP" | "LA" | "SSF" | "Home"
   brand: string
   model: string
   serialNumber: string
@@ -95,8 +102,8 @@ export async function getAssets(params?: {
           if (user) {
             assignedToName = `${user.firstName} ${user.lastName}`
           }
-        } catch {
-          // Invalid ObjectId, ignore
+        } catch (error) {
+          // Invalid ObjectId
         }
       }
       return {

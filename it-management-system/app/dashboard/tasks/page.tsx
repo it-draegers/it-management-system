@@ -18,7 +18,7 @@ import {
   Loader2,
   CheckCircle2,
   Circle,
-  Pencil, 
+  Pencil,
 } from "lucide-react";
 
 export default function TasksPage() {
@@ -33,7 +33,6 @@ export default function TasksPage() {
   const loadTasks = useCallback(async () => {
     const result = await getTasks();
     if ("tasks" in result) {
-      // ensure we never pass undefined to setTasks
       setTasks(result.tasks ?? []);
     } else if ("error" in result && result.error) {
       setError(result.error);
@@ -92,10 +91,7 @@ export default function TasksPage() {
     }
 
     setEditingLoading(true);
-    const result = await updateTask(task._id, {
-      title: trimmed,
-      completed: task.completed,
-    });
+    const result = await updateTask(task._id, { title: trimmed });
     setEditingLoading(false);
 
     if ("error" in result && result.error) {
@@ -124,7 +120,8 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="flex flex-col gap-6">
+      {" "}
       {/* Top bar */}
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
@@ -133,15 +130,11 @@ export default function TasksPage() {
               <ClipboardList className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-xl font-semibold">Tasks</h1>
-              <p className="text-sm text-muted-foreground">
-                Add, complete, and remove tasks
-              </p>
+              <h1 className="text-2xl font-bold text-foreground">Tasks</h1>
             </div>
           </div>
         </div>
       </header>
-
       {/* Main content */}
       <main className="flex-1">
         <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6">
@@ -165,7 +158,7 @@ export default function TasksPage() {
               />
               <Button
                 type="submit"
-                className="sm:w-auto w-full"
+                className=" transition delay-150 duration-100 ease-in-out hover:-translate-y-1 hover:scale-110  ..."
                 disabled={loading}
               >
                 {loading ? (
@@ -175,8 +168,8 @@ export default function TasksPage() {
                   </>
                 ) : (
                   <>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Task
+                    <Plus className=" transition delay-150 duration-100 ease-in-out hover:-translate-y-1 hover:scale-110  ..."/>
+                      Add
                   </>
                 )}
               </Button>

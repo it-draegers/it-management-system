@@ -94,7 +94,7 @@ export default function AssetsPage() {
       status: statusFilter,
     })
     if ("assets" in result) {
-      setAssets(result.assets)
+      setAssets(result.assets ?? [])
     }
     setPageLoading(false)
   }, [search, typeFilter, statusFilter])
@@ -221,6 +221,9 @@ export default function AssetsPage() {
               <TableHead className="text-muted-foreground">
                 Assigned To
               </TableHead>
+              <TableHead className="text-muted-foreground">
+                Location
+              </TableHead>
               <TableHead className="w-[50px]">
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -292,6 +295,9 @@ export default function AssetsPage() {
                         Unassigned
                       </span>
                     )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {asset.location || "-"}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

@@ -43,7 +43,6 @@ export async function getTasks() {
   return { tasks: mapped }
 }
 
-// ➕ Create task
 export async function createTask(title: string) {
   const admin = await getCurrentAdmin()
   if (!admin) return { error: "Unauthorized" }
@@ -74,7 +73,6 @@ export async function createTask(title: string) {
   }
 }
 
-// 🗑️ Delete task
 export async function deleteTask(id: string) {
   const admin = await getCurrentAdmin()
   if (!admin) return { error: "Unauthorized" }
@@ -122,7 +120,6 @@ export async function updateTask(
   }
 }
 
-// ✅ Toggle completed
 export async function toggleTaskCompleted(id: string, completed: boolean) {
   const admin = await getCurrentAdmin()
   if (!admin) return { error: "Unauthorized" }
@@ -135,4 +132,14 @@ export async function toggleTaskCompleted(id: string, completed: boolean) {
   )
 
   return { success: true }
+}
+
+export async function getTaskCount() {
+  const db = await getDb()
+
+  const count = await db
+    .collection("tasks")
+    .countDocuments({ completed: false })
+
+  return count
 }

@@ -79,8 +79,11 @@ export default function UsersPage() {
       department: deptFilter,
       status: statusFilter,
     })
+    // Ensure we never pass undefined to setUsers
     if ("users" in result) {
-      setUsers(result.users)
+      setUsers(result.users ?? [])
+    } else {
+      setUsers([])
     }
     setPageLoading(false)
   }, [search, deptFilter, statusFilter])
@@ -88,7 +91,7 @@ export default function UsersPage() {
   const loadDepartments = useCallback(async () => {
     const result = await getDepartments()
     if ("departments" in result) {
-      setDepartments(result.departments)
+      setDepartments(result.departments ?? [])
     }
   }, [])
 
@@ -204,6 +207,7 @@ export default function UsersPage() {
               <TableHead className="text-muted-foreground">Position</TableHead>
               <TableHead className="text-muted-foreground">Status</TableHead>
               <TableHead className="text-muted-foreground">Assets</TableHead>
+              <TableHead className="text-muted-foreground">Location</TableHead>
               <TableHead className="w-[50px]">
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -282,6 +286,9 @@ export default function UsersPage() {
     <span className="text-muted-foreground text-sm">No assets</span>
   )}
 </TableCell>
+<TableCell className="text-muted-foreground">
+                    {user.location}
+                  </TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

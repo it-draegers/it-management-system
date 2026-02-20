@@ -30,6 +30,8 @@ import {
   ShieldCheck,
   ListCheck
 } from "lucide-react"
+import { getTaskCount } from "@/lib/actions/tasks"
+import { useEffect, useState } from "react"
 
 const navItems = [
   {
@@ -59,10 +61,21 @@ interface AppSidebarProps {
   adminEmail: string
 }
 
+
 export function AppSidebar({ adminName, adminEmail }: AppSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+const [taskCount, setTaskCount] = useState(0)
 
+  useEffect(() => {
+    async function fetchTaskCount() {
+      const count = await getTaskCount()
+      setTaskCount(count)
+    }
+    
+    fetchTaskCount()
+  }, [])
+  
   async function handleLogout() {
     await logout()
     router.push("/login")
@@ -97,8 +110,33 @@ export function AppSidebar({ adminName, adminEmail }: AppSidebarProps) {
                   pathname === item.url ||
                   (item.url !== "/dashboard" &&
                     pathname.startsWith(item.url))
+                    
                 return (
+                  
                   <SidebarMenuItem key={item.title}>
+  {item.title === "Tasks" ? (
+    <SidebarMenuButton
+      asChild
+      isActive={isActive}
+      tooltip={item.title}
+    >
+      <a href={item.url} className="flex items-center gap-2">
+        <ListCheck className="h-4 w-4" />
+
+        {/* wrapping the title + badge */}
+        <span className="relative flex items-center">
+          {item.title}
+          {taskCount > 0 && (
+            <span
+              className="ml-2 inline-flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] w-4 h-4"
+            >
+              {taskCount}
+            </span>
+          )}
+        </span>
+      </a>
+    </SidebarMenuButton>
+                    ) : (
                     <SidebarMenuButton
                       asChild
                       isActive={isActive}
@@ -109,6 +147,7 @@ export function AppSidebar({ adminName, adminEmail }: AppSidebarProps) {
                         <span>{item.title}</span>
                       </a>
                     </SidebarMenuButton>
+                    )}
                   </SidebarMenuItem>
                 )
               })}

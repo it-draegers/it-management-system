@@ -24,6 +24,7 @@ interface UserFormProps {
     position: string
     phone: string
     status: "active" | "inactive"
+    location: string
   }) => Promise<void>
   onCancel: () => void
   loading?: boolean
@@ -41,6 +42,11 @@ const departments = [
   "Management",
   "IT",
 ]
+const locations = [
+  "MP",
+  "LA",
+  "SSF"
+]
 
 export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
   const [error, setError] = useState("")
@@ -55,6 +61,7 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         firstName: formData.get("firstName") as string,
         lastName: formData.get("lastName") as string,
         email: formData.get("email") as string,
+        location: formData.get("location") as string,
         department: formData.get("department") as string,
         position: (formData.get("position") as string) || "",
         phone: (formData.get("phone") as string) || "",
@@ -122,6 +129,24 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
               {departments.map((dept) => (
                 <SelectItem key={dept} value={dept}>
                   {dept}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="location">Location</Label>
+          <Select
+            name="location"
+            defaultValue={user?.location || undefined}
+          >
+            <SelectTrigger id="location">
+              <SelectValue placeholder="Select location" />
+            </SelectTrigger>
+            <SelectContent>
+              {locations.map((loc) => (
+                <SelectItem key={loc} value={loc}>
+                  {loc}
                 </SelectItem>
               ))}
             </SelectContent>

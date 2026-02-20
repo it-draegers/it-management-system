@@ -13,6 +13,7 @@ const userSchema = z.object({
   position: z.string().optional().default(""),
   phone: z.string().optional().default(""),
   status: z.enum(["active", "inactive"]).default("active"),
+  location: z.string().optional().default(""),
 })
 
 export type User = {
@@ -21,6 +22,7 @@ export type User = {
   lastName: string
   email: string
   department: string
+  location: string
   position: string
   phone: string
   status: "active" | "inactive"
@@ -96,6 +98,14 @@ export async function getDepartments() {
   const db = await getDb()
   const departments = await db.collection("users").distinct("department")
   return { departments: departments.filter(Boolean) as string[] }
+}
+export async function getLocation() {
+  const admin = await getCurrentAdmin()
+  if (!admin) return { error: "Unauthorized" }
+
+  const db = await getDb()
+  const locations = await db.collection("users").distinct("location")
+  return { locations: locations.filter(Boolean) as string[] }
 }
 
 export async function createUser(formData: z.infer<typeof userSchema>) {

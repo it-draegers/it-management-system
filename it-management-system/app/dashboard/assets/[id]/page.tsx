@@ -27,6 +27,8 @@ import {
   Hash,
   Tag,
   FileText,
+  MapPin,
+  Pencil,
 } from "lucide-react"
 
 const statusColors: Record<string, string> = {
@@ -73,6 +75,7 @@ export default async function AssetDetailPage({
           {asset.status}
         </Badge>
       </div>
+     
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Asset Details Card */}
@@ -83,7 +86,14 @@ export default async function AssetDetailPage({
               <CardTitle className="text-base font-semibold text-foreground">
                 Asset Information
               </CardTitle>
+               <Button asChild variant="default">
+          <Link href={`/dashboard/assets/${id}/edit`}>
+            <Pencil className="h-4 w-4" />
+            <span className="sr-only">Edit asset</span>
+          </Link>
+        </Button>
             </div>
+            
             <CardDescription>General details about this asset</CardDescription>
           </CardHeader>
           <CardContent>
@@ -109,6 +119,16 @@ export default async function AssetDetailPage({
               </div>
               <Separator />
               <div className="flex items-center gap-3">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Location</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {asset.location || "-"}
+                  </p>
+                </div>
+              </div>
+              <Separator />
+              <div className="flex items-center gap-3">
                 <Hash className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-xs text-muted-foreground">Serial Number</p>
@@ -127,6 +147,7 @@ export default async function AssetDetailPage({
                   </p>
                 </div>
               </div>
+              
               {asset.notes && (
                 <>
                   <Separator />

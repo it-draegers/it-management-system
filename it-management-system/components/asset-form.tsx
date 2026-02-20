@@ -1,24 +1,34 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useRouter } from "next/navigation"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Loader2, Plus, X } from "lucide-react"
-import type { Asset } from "@/lib/actions/assets"
+} from "@/components/ui/select";
+import { Loader2, Plus, X } from "lucide-react";
+import type { Asset } from "@/lib/actions/assets";
 
 interface AssetFormProps {
-  asset?: Asset | null
+  asset?: Asset | null;
   onSubmit: (data: {
-    name: string
+    _id(_id: any, asset: {
+      name: string; type: "Desktop" |
+        "Laptop" |
+        "Monitor" |
+        "Keyboard" |
+        "Phone" |
+        "Printer" |
+        "Other"; brand: string; location: "MP" | "LA" | "SSF" | "Home"; model: string; serialNumber: string; status: "available" | "assigned" | "maintenance" | "retired"; purchaseDate: string; notes: string; customProperties: { key: string; value: string; }[];
+    }): unknown;
+    name: string;
     type:
       | "Desktop"
       | "Laptop"
@@ -26,18 +36,20 @@ interface AssetFormProps {
       | "Keyboard"
       | "Phone"
       | "Printer"
-      | "Other"
-    brand: string
-    model: string
-    serialNumber: string
-    status: "available" | "assigned" | "maintenance" | "retired"
-    purchaseDate: string
-    notes: string
-    customProperties: { key: string; value: string }[]
-  }) => Promise<void>
-  onCancel: () => void
-  loading?: boolean
+      | "Other";
+    brand: string;
+    location: "MP" | "LA" | "SSF" | "Home";
+    model: string;
+    serialNumber: string;
+    status: "available" | "assigned" | "maintenance" | "retired";
+    purchaseDate: string;
+    notes: string;
+    customProperties: { key: string; value: string }[];
+  }) => Promise<void>;
+  onCancel?: () => void           
+  loading?: boolean;
 }
+const locations = ["MP", "LA", "SSF", "Home"];
 
 const assetTypes = [
   "Desktop",
@@ -47,62 +59,75 @@ const assetTypes = [
   "Phone",
   "Printer",
   "Other",
-] as const
+] as const;
 
-export function AssetForm({ asset, onSubmit, onCancel, loading }: AssetFormProps) {
-  const [error, setError] = useState("")
+export function AssetForm({
+  asset,
+  onSubmit,
+  onCancel,
+  loading,
+}: AssetFormProps) {
+  const [error, setError] = useState("");
   const [customProperties, setCustomProperties] = useState<
     { key: string; value: string }[]
-  >(asset?.customProperties || [])
+  >(asset?.customProperties || []);
+  const router = useRouter();
 
   function addProperty() {
-    setCustomProperties([...customProperties, { key: "", value: "" }])
+    setCustomProperties([...customProperties, { key: "", value: "" }]);
   }
 
   function removeProperty(index: number) {
-    setCustomProperties(customProperties.filter((_, i) => i !== index))
+    setCustomProperties(customProperties.filter((_, i) => i !== index));
   }
 
   function updateProperty(
     index: number,
     field: "key" | "value",
-    value: string
+    value: string,
   ) {
-    const updated = [...customProperties]
-    updated[index][field] = value
-    setCustomProperties(updated)
+    const updated = [...customProperties];
+    updated[index][field] = value;
+    setCustomProperties(updated);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setError("")
-    const formData = new FormData(e.currentTarget)
+    e.preventDefault();
+    setError("");
+    const formData = new FormData(e.currentTarget);
 
     try {
       await onSubmit({
         name: formData.get("name") as string,
         type: formData.get("type") as AssetFormProps["onSubmit"] extends (
           data: infer D
-        ) => unknown
-          ? D extends { type: infer T }
-            ? T
-            : never
-          : never,
+        ) => unknown ? D extends { type: infer T; } ? T : never : never,
         brand: (formData.get("brand") as string) || "",
         model: (formData.get("model") as string) || "",
         serialNumber: (formData.get("serialNumber") as string) || "",
-        status:
-          (formData.get("status") as
-            | "available"
-            | "assigned"
-            | "maintenance"
-            | "retired") || "available",
+        status: (formData.get("status") as "available" |
+          "assigned" |
+          "maintenance" |
+          "retired") || "available",
         purchaseDate: (formData.get("purchaseDate") as string) || "",
+        location: (formData.get("location") as "MP" | "LA" | "SSF" | "Home") || null,
+
         notes: (formData.get("notes") as string) || "",
         customProperties: customProperties.filter((p) => p.key.trim()),
-      })
+        _id: function (_id: any, asset: {
+          name: string; type: "Desktop" |
+          "Laptop" |
+          "Monitor" |
+          "Keyboard" |
+          "Phone" |
+          "Printer" |
+          "Other"; brand: string; location: "MP" | "LA" | "SSF" | "Home"; model: string; serialNumber: string; status: "available" | "assigned" | "maintenance" | "retired"; purchaseDate: string; notes: string; customProperties: { key: string; value: string; }[];
+        }): unknown {
+          throw new Error("Function not implemented.");
+        }
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong")
+      setError(err instanceof Error ? err.message : "Something went wrong");
     }
   }
 
@@ -174,11 +199,26 @@ export function AssetForm({ asset, onSubmit, onCancel, loading }: AssetFormProps
           />
         </div>
         <div className="flex flex-col gap-2">
+          <Label htmlFor="location">Location</Label>
+          <Select name="location" defaultValue={asset?.location || undefined}>
+            <SelectTrigger id="location">
+              <SelectValue placeholder="Select location" />
+            </SelectTrigger>
+            <SelectContent>
+              {locations.map((location) => (
+                <SelectItem key={location} value={location}>
+                  {location}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="status">Status</Label>
-          <Select
-            name="status"
-            defaultValue={asset?.status || "available"}
-          >
+          <Select name="status" defaultValue={asset?.status || "available"}>
             <SelectTrigger id="status">
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
@@ -234,9 +274,7 @@ export function AssetForm({ asset, onSubmit, onCancel, loading }: AssetFormProps
                 <Input
                   placeholder="Key (e.g. RAM)"
                   value={prop.key}
-                  onChange={(e) =>
-                    updateProperty(index, "key", e.target.value)
-                  }
+                  onChange={(e) => updateProperty(index, "key", e.target.value)}
                   className="flex-1"
                 />
                 <Input
@@ -263,7 +301,10 @@ export function AssetForm({ asset, onSubmit, onCancel, loading }: AssetFormProps
       </div>
 
       <div className="flex justify-end gap-3 pt-2">
-        <Button type="button" variant="outline" onClick={onCancel}>
+        <Button type="button" variant="outline"  onClick={() => {
+            if (onCancel) onCancel()
+            else router.back()     // 👈 default cancel behavior
+          }}>
           Cancel
         </Button>
         <Button type="submit" disabled={loading}>
@@ -280,5 +321,5 @@ export function AssetForm({ asset, onSubmit, onCancel, loading }: AssetFormProps
         </Button>
       </div>
     </form>
-  )
+  );
 }
