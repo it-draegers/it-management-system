@@ -114,6 +114,9 @@ export async function getAssets(params?: {
   return { assets: assetsWithNames as Asset[] }
 }
 
+
+
+
 export async function getAsset(id: string) {
   const admin = await getCurrentAdmin()
   if (!admin) return { error: "Unauthorized" }

@@ -88,6 +88,40 @@ export async function deleteTask(id: string) {
   return { success: true }
 }
 
+
+export async function updateTask(
+  id: string,
+  formData: z.infer<typeof taskSchema>
+) {
+  const admin = await getCurrentAdmin()
+  if (!admin) return { error: "Unauthorized" }
+
+  try {
+    const validated = taskSchema.parse(formData)
+    const db = await getDb()
+
+    await db.collection("tasks").updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          ...validated,
+          updatedAt: new Date(),
+          updatedBy: admin._id?.toString?.() ?? null,
+        },
+      }
+    )
+
+    return { success: true }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { error: error.errors[0].message }
+    }
+
+    console.error("Failed to update task", error)
+    return { error: "Failed to update task" }
+  }
+}
+
 // ✅ Toggle completed
 export async function toggleTaskCompleted(id: string, completed: boolean) {
   const admin = await getCurrentAdmin()

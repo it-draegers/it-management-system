@@ -1,15 +1,16 @@
-"use client"
+"use client";
 
-import { useEffect, useState, useCallback } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useEffect, useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   getTasks,
   createTask,
   deleteTask,
   toggleTaskCompleted,
+  updateTask,
   type Task,
-} from "@/lib/actions/tasks"
+} from "@/lib/actions/tasks";
 import {
   ClipboardList,
   Plus,
@@ -17,69 +18,109 @@ import {
   Loader2,
   CheckCircle2,
   Circle,
-} from "lucide-react"
+  Pencil, 
+} from "lucide-react";
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [newTask, setNewTask] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [pageLoading, setPageLoading] = useState(true)
-
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [newTask, setNewTask] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState("");
+  const [editingLoading, setEditingLoading] = useState(false);
   const loadTasks = useCallback(async () => {
-    const result = await getTasks()
+    const result = await getTasks();
     if ("tasks" in result) {
-      setTasks(result.tasks)
+      // ensure we never pass undefined to setTasks
+      setTasks(result.tasks ?? []);
     } else if ("error" in result && result.error) {
-      setError(result.error)
+      setError(result.error);
     }
-    setPageLoading(false)
-  }, [])
+    setPageLoading(false);
+  }, []);
 
   useEffect(() => {
-    loadTasks()
-  }, [loadTasks])
+    loadTasks();
+  }, [loadTasks]);
 
   async function handleAddTask(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setError("")
-    const trimmed = newTask.trim()
+    e.preventDefault();
+    setError("");
+    const trimmed = newTask.trim();
     if (!trimmed) {
-      setError("Task title cannot be empty")
-      return
+      setError("Task title cannot be empty");
+      return;
     }
 
-    setLoading(true)
-    const result = await createTask(trimmed)
-    setLoading(false)
+    setLoading(true);
+    const result = await createTask(trimmed);
+    setLoading(false);
 
     if ("error" in result && result.error) {
-      setError(result.error)
-      return
+      setError(result.error);
+      return;
     }
 
-    setNewTask("")
-    loadTasks()
+    setNewTask("");
+    loadTasks();
   }
 
   async function handleDeleteTask(id: string) {
-    setError("")
-    const result = await deleteTask(id)
+    setError("");
+    const result = await deleteTask(id);
     if ("error" in result && result.error) {
-      setError(result.error)
-      return
+      setError(result.error);
+      return;
     }
-    loadTasks()
+    loadTasks();
+  }
+
+  function handleStartEdit(task: Task) {
+    setError("");
+    setEditingTaskId(task._id);
+    setEditingTitle(task.title);
+  }
+
+  async function handleSaveEdit(task: Task) {
+    setError("");
+    const trimmed = editingTitle.trim();
+    if (!trimmed) {
+      setError("Task title cannot be empty");
+      return;
+    }
+
+    setEditingLoading(true);
+    const result = await updateTask(task._id, {
+      title: trimmed,
+      completed: task.completed,
+    });
+    setEditingLoading(false);
+
+    if ("error" in result && result.error) {
+      setError(result.error);
+      return;
+    }
+
+    setEditingTaskId(null);
+    setEditingTitle("");
+    loadTasks();
+  }
+
+  function handleCancelEdit() {
+    setEditingTaskId(null);
+    setEditingTitle("");
   }
 
   async function handleToggleCompleted(task: Task) {
-    setError("")
-    const result = await toggleTaskCompleted(task._id, !task.completed)
+    setError("");
+    const result = await toggleTaskCompleted(task._id, !task.completed);
     if ("error" in result && result.error) {
-      setError(result.error)
-      return
+      setError(result.error);
+      return;
     }
-    loadTasks()
+    loadTasks();
   }
 
   return (
@@ -153,7 +194,6 @@ export default function TasksPage() {
               <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-sm text-muted-foreground">
                 <CheckCircle2 className="mb-1 h-6 w-6 text-muted-foreground/60" />
                 <p>No tasks yet</p>
-               
               </div>
             ) : (
               <div className="flex max-h-[70vh] flex-col gap-2 overflow-y-auto">
@@ -177,15 +217,23 @@ export default function TasksPage() {
                         )}
                       </Button>
                       <div className="flex flex-col">
-                        <span
-                          className={`font-medium ${
-                            task.completed
-                              ? "text-muted-foreground line-through"
-                              : "text-foreground"
-                          }`}
-                        >
-                          {task.title}
-                        </span>
+                        {editingTaskId === task._id ? (
+                          <Input
+                            value={editingTitle}
+                            onChange={(e) => setEditingTitle(e.target.value)}
+                            className="h-8 px-2 py-1 text-sm"
+                          />
+                        ) : (
+                          <span
+                            className={`font-medium ${
+                              task.completed
+                                ? "text-muted-foreground line-through"
+                                : "text-foreground"
+                            }`}
+                          >
+                            {task.title}
+                          </span>
+                        )}
                         <span className="text-xs text-muted-foreground">
                           Added by {task.createdByName} •{" "}
                           {new Date(task.createdAt).toLocaleString(undefined, {
@@ -195,15 +243,50 @@ export default function TasksPage() {
                         </span>
                       </div>
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => handleDeleteTask(task._id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      {editingTaskId === task._id ? (
+                        <>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={editingLoading}
+                            onClick={() => handleSaveEdit(task)}
+                          >
+                            {editingLoading ? "Saving..." : "Save"}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleCancelEdit}
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleStartEdit(task)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => handleDeleteTask(task._id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -212,5 +295,5 @@ export default function TasksPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }
