@@ -5,16 +5,14 @@ interface StatsCardsProps {
   totalUsers: number
   totalAssets: number
   assignedAssets: number
-  availableAssets: number
-  maintenanceAssets: number
+  
 }
 
 export function StatsCards({
   totalUsers,
   totalAssets,
   assignedAssets,
-  availableAssets,
-  maintenanceAssets,
+ 
 }: StatsCardsProps) {
   const stats = [
     {
@@ -37,21 +35,7 @@ export function StatsCards({
       icon: Link2,
       color: "text-chart-1",
       bg: "bg-chart-1/10",
-    },
-    {
-      title: "Available",
-      value: availableAssets,
-      icon: CheckCircle2,
-      color: "text-success",
-      bg: "bg-success/10",
-    },
-    {
-      title: "Maintenance",
-      value: maintenanceAssets,
-      icon: Wrench,
-      color: "text-warning",
-      bg: "bg-warning/10",
-    },
+    }
   ]
 
   return (

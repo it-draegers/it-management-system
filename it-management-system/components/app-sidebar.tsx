@@ -28,6 +28,7 @@ import {
   LogOut,
   ChevronUp,
   ShieldCheck,
+  ListCheck
 } from "lucide-react"
 
 const navItems = [
@@ -45,6 +46,11 @@ const navItems = [
     title: "Assets",
     url: "/dashboard/assets",
     icon: HardDrive,
+  },
+  {
+    title: "Tasks",
+    url: "/dashboard/tasks",
+    icon: ListCheck,
   },
 ]
 

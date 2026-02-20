@@ -270,13 +270,18 @@ export default function UsersPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                      <HardDrive className="h-3.5 w-3.5" />
-                      <span className="text-sm">
-                        {user.assignedAssetsCount || 0}
-                      </span>
-                    </div>
-                  </TableCell>
+  {user.assignedAssets && user.assignedAssets.length > 0 ? (
+    <div className="flex flex-wrap gap-1">
+      {user.assignedAssets.map((asset) => (
+        <Badge key={asset._id} variant="outline" className="text-xs">
+          {asset.name}
+        </Badge>
+      ))}
+    </div>
+  ) : (
+    <span className="text-muted-foreground text-sm">No assets</span>
+  )}
+</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

@@ -25,6 +25,7 @@ export type User = {
   phone: string
   status: "active" | "inactive"
   assignedAssetsCount?: number
+  assignedAssets?: { _id: string; name: string }[]
   createdAt: string
   updatedAt: string
 }
@@ -62,25 +63,32 @@ export async function getUsers(params?: {
     .sort({ createdAt: -1 })
     .toArray()
 
-  // Get assigned assets count for each user
-  const usersWithCounts = await Promise.all(
+ const usersWithAssets = await Promise.all(
     users.map(async (user) => {
-      const count = await db
+      const assets = await db
         .collection("assets")
-        .countDocuments({ assignedTo: user._id.toString() })
+        .find({ assignedTo: user._id.toString() })
+        .project({ name: 1 }) 
+        .toArray()
+
+      const assignedAssets = assets.map((asset) => ({
+        _id: asset._id.toString(),
+        name: asset.name as string,
+      }))
+
       return {
         ...user,
         _id: user._id.toString(),
-        assignedAssetsCount: count,
+        assignedAssetsCount: assignedAssets.length,
+        assignedAssets,
         createdAt: user.createdAt?.toISOString?.() || new Date().toISOString(),
         updatedAt: user.updatedAt?.toISOString?.() || new Date().toISOString(),
       }
     })
   )
 
-  return { users: usersWithCounts as User[] }
+  return { users: usersWithAssets as User[] }
 }
-
 export async function getDepartments() {
   const admin = await getCurrentAdmin()
   if (!admin) return { error: "Unauthorized" }

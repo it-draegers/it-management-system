@@ -201,7 +201,6 @@ export default function AssetsPage() {
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="available">Available</SelectItem>
             <SelectItem value="assigned">Assigned</SelectItem>
-            <SelectItem value="maintenance">Maintenance</SelectItem>
             <SelectItem value="retired">Retired</SelectItem>
           </SelectContent>
         </Select>
@@ -217,9 +216,7 @@ export default function AssetsPage() {
               <TableHead className="text-muted-foreground">
                 Brand / Model
               </TableHead>
-              <TableHead className="text-muted-foreground">
-                Serial Number
-              </TableHead>
+              
               <TableHead className="text-muted-foreground">Status</TableHead>
               <TableHead className="text-muted-foreground">
                 Assigned To
@@ -280,9 +277,7 @@ export default function AssetsPage() {
                     {asset.model ? ` ${asset.model}` : ""}
                     {!asset.brand && !asset.model ? "-" : ""}
                   </TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">
-                    {asset.serialNumber || "-"}
-                  </TableCell>
+                  
                   <TableCell>
                     <Badge
                       variant="outline"

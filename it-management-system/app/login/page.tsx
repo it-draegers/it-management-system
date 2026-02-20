@@ -52,9 +52,7 @@ export default function LoginPage() {
           <CardTitle className="text-2xl font-bold text-foreground">
             Draeger's IT Management
           </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Sign in to your admin account
-          </CardDescription>
+          
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="flex flex-col gap-4">
@@ -71,7 +69,7 @@ export default function LoginPage() {
                 id="email"
                 name="email"
                 type="email"
-                placeholder="admin@company.com"
+                placeholder="Enter your Email"
                 required
                 className="bg-background"
               />
@@ -101,15 +99,7 @@ export default function LoginPage() {
                 "Sign In"
               )}
             </Button>
-            <p className="text-sm text-muted-foreground">
-              {"Don't have an account? "}
-              <Link
-                href="/register"
-                className="font-medium text-primary hover:underline"
-              >
-                Create one
-              </Link>
-            </p>
+            
           </CardFooter>
         </form>
       </Card>

@@ -32,8 +32,6 @@ export default async function DashboardPage() {
         totalUsers={stats.totalUsers}
         totalAssets={stats.totalAssets}
         assignedAssets={stats.assignedAssets}
-        availableAssets={stats.availableAssets}
-        maintenanceAssets={stats.maintenanceAssets}
       />
 
       <div className="grid gap-6 md:grid-cols-2">
