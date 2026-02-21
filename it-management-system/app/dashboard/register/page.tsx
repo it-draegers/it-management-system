@@ -44,7 +44,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex max-h-screen items-center justify-center bg-background px-10">
       <Card className="w-full max-w-md border-border">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
@@ -54,7 +54,7 @@ export default function RegisterPage() {
             Create Account
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Set up your admin account for IT Management
+            Set up admin account
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -116,15 +116,7 @@ export default function RegisterPage() {
                 "Create Account"
               )}
             </Button>
-            <p className="text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link
-                href="/login"
-                className="font-medium text-primary hover:underline"
-              >
-                Sign in
-              </Link>
-            </p>
+           
           </CardFooter>
         </form>
       </Card>

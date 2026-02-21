@@ -49,9 +49,9 @@ export async function register(formData: {
       id: result.insertedId.toString(),
       email: validated.email,
       name: validated.name,
+      _id: undefined
     })
 
-    await setAuthCookie(token)
     return { success: true }
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -82,6 +82,7 @@ export async function login(formData: { email: string; password: string }) {
       id: admin._id.toString(),
       email: admin.email,
       name: admin.name,
+      _id: undefined
     })
 
     await setAuthCookie(token)

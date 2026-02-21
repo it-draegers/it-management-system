@@ -28,7 +28,8 @@ import {
   LogOut,
   ChevronUp,
   ShieldCheck,
-  ListCheck
+  ListCheck,
+  UserPlus
 } from "lucide-react"
 import { getTaskCount } from "@/lib/actions/tasks"
 import { useEffect, useState } from "react"
@@ -75,7 +76,7 @@ const [taskCount, setTaskCount] = useState(0)
     
     fetchTaskCount()
   }, [])
-  
+
   async function handleLogout() {
     await logout()
     router.push("/login")
@@ -123,7 +124,6 @@ const [taskCount, setTaskCount] = useState(0)
       <a href={item.url} className="flex items-center gap-2">
         <ListCheck className="h-4 w-4" />
 
-        {/* wrapping the title + badge */}
         <span className="relative flex items-center">
           {item.title}
           {taskCount > 0 && (
@@ -182,6 +182,13 @@ const [taskCount, setTaskCount] = useState(0)
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign out
+                </DropdownMenuItem>
+                 <DropdownMenuItem
+                  onClick={() => router.push("/dashboard/register")}
+                  className="text-primary focus:text-primary"
+                >
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Register an Admin
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

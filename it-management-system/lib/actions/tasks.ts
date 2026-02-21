@@ -18,7 +18,6 @@ export type Task = {
   completed: boolean
 }
 
-// 🧾 Get tasks
 export async function getTasks() {
   const admin = await getCurrentAdmin()
   if (!admin) return { error: "Unauthorized" }

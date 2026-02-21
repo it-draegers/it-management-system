@@ -8,12 +8,12 @@ const JWT_SECRET = new TextEncoder().encode(
 
 const COOKIE_NAME = "it-admin-token"
 
-const publicPaths = ["/login", "/register"]
+const publicPaths = ["/login"]
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get(COOKIE_NAME)?.value
-
+  
   // Allow API routes to pass through
   if (pathname.startsWith("/api")) {
     return NextResponse.next()

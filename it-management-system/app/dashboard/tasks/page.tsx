@@ -20,6 +20,7 @@ import {
   Circle,
   Pencil,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -30,6 +31,7 @@ export default function TasksPage() {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [editingLoading, setEditingLoading] = useState(false);
+  const router = useRouter();
   const loadTasks = useCallback(async () => {
     const result = await getTasks();
     if ("tasks" in result) {
@@ -64,6 +66,8 @@ export default function TasksPage() {
 
     setNewTask("");
     loadTasks();
+    router.refresh(); 
+
   }
 
   async function handleDeleteTask(id: string) {
@@ -122,7 +126,6 @@ export default function TasksPage() {
   return (
     <div className="flex flex-col gap-6">
       {" "}
-      {/* Top bar */}
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
@@ -135,10 +138,8 @@ export default function TasksPage() {
           </div>
         </div>
       </header>
-      {/* Main content */}
       <main className="flex-1">
         <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6">
-          {/* Add task */}
           <section className="rounded-lg border border-border bg-muted/30 p-4">
             {error && (
               <div className="mb-3 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
