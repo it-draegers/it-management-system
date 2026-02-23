@@ -36,6 +36,7 @@ export async function getUsers(params?: {
   search?: string
   department?: string
   status?: string
+  location?: string
 }) {
   const admin = await getCurrentAdmin()
   if (!admin) return { error: "Unauthorized" }
@@ -57,6 +58,9 @@ export async function getUsers(params?: {
 
   if (params?.status && params.status !== "all") {
     filter.status = params.status
+  }
+  if (params?.location && params.location !== "all") {
+    filter.location = params.location
   }
 
   const users = await db

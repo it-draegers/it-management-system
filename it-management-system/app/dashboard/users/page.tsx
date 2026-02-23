@@ -66,6 +66,7 @@ export default function UsersPage() {
   const [departments, setDepartments] = useState<string[]>([])
   const [search, setSearch] = useState("")
   const [deptFilter, setDeptFilter] = useState("all")
+  const [locationFilter, setLocationFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
@@ -78,6 +79,7 @@ export default function UsersPage() {
       search: search || undefined,
       department: deptFilter,
       status: statusFilter,
+      location: locationFilter,
     })
     // Ensure we never pass undefined to setUsers
     if ("users" in result) {
@@ -86,7 +88,7 @@ export default function UsersPage() {
       setUsers([])
     }
     setPageLoading(false)
-  }, [search, deptFilter, statusFilter])
+  }, [search, deptFilter, statusFilter, locationFilter])
 
   const loadDepartments = useCallback(async () => {
     const result = await getDepartments()
@@ -180,6 +182,18 @@ export default function UsersPage() {
                 {dept}
               </SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+       <Select value={locationFilter} onValueChange={setLocationFilter}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Location" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Locations</SelectItem>
+            <SelectItem value="SSF">SSF</SelectItem>
+            <SelectItem value="MP">MP</SelectItem>
+            <SelectItem value="LA">LA</SelectItem>
+            <SelectItem value="Home">Home</SelectItem>
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>

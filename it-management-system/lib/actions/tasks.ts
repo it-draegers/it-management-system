@@ -103,7 +103,7 @@ export async function updateTask(
         $set: {
           ...validated,
           updatedAt: new Date(),
-          updatedBy: admin._id?.toString?.() ?? null,
+          updatedBy: (admin as any)._id?.toString?.() ?? (admin as any).id ?? null,
         },
       }
     )

@@ -80,6 +80,7 @@ export default function AssetsPage() {
   const [search, setSearch] = useState("")
   const [typeFilter, setTypeFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [locationFilter, setLocationFilter] = useState("all")
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null)
   const [deletingAsset, setDeletingAsset] = useState<Asset | null>(null)
@@ -92,12 +93,13 @@ export default function AssetsPage() {
       search: search || undefined,
       type: typeFilter,
       status: statusFilter,
+      location: locationFilter,
     })
     if ("assets" in result) {
       setAssets(result.assets ?? [])
     }
     setPageLoading(false)
-  }, [search, typeFilter, statusFilter])
+  }, [search, typeFilter, statusFilter, locationFilter])
 
   useEffect(() => {
     loadAssets()
@@ -193,6 +195,21 @@ export default function AssetsPage() {
             <SelectItem value="Other">Other</SelectItem>
           </SelectContent>
         </Select>
+
+
+        <Select value={locationFilter} onValueChange={setLocationFilter}>
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Location" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Locations</SelectItem>
+            <SelectItem value="SSF">SSF</SelectItem>
+            <SelectItem value="MP">MP</SelectItem>
+            <SelectItem value="LA">LA</SelectItem>
+            <SelectItem value="Home">Home</SelectItem>
+          </SelectContent>
+        </Select>
+        
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="Status" />
