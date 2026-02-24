@@ -1,23 +1,23 @@
-import { getStats } from "@/lib/actions/assets"
-import { StatsCards } from "@/components/stats-cards"
+import { getStats } from "@/lib/actions/assets";
+import { StatsCards } from "@/components/stats-cards";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Users, HardDrive } from "lucide-react"
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Users, HardDrive } from "lucide-react";
 
 export default async function DashboardPage() {
-  const result = await getStats()
+  const result = await getStats();
 
   if ("error" in result) {
-    return <div className="text-destructive">{result.error}</div>
+    return <div className="text-destructive">{result.error}</div>;
   }
 
-  const { stats } = result
+  const { stats } = result;
 
   return (
     <div className="flex flex-col gap-6">
@@ -53,49 +53,49 @@ export default async function DashboardPage() {
               </p>
             ) : (
               <div className="flex flex-col gap-3">
-                {stats.recentUsers.map(
-                  (user: {
-                    _id: string
-                    firstName: string
-                    lastName: string
-                    email: string
-                    department: string
-                    status: string
-                  }) => (
-                    <div
-                      key={user._id}
-                      className="flex items-center justify-between rounded-lg border border-border p-3"
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-foreground">
-                          {user.firstName} {user.lastName}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {user.email}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={
-                            user.status === "active" ? "default" : "secondary"
-                          }
-                          className={
-                            user.status === "active"
-                              ? "bg-success/10 text-success hover:bg-success/20"
-                              : ""
-                          }
-                        >
-                          {user.status}
-                        </Badge>
-                        {user.department && (
-                          <Badge variant="outline" className="text-xs">
-                            {user.department}
-                          </Badge>
-                        )}
-                      </div>
+                {(
+                  stats.recentUsers as {
+                    _id: string;
+                    firstName?: string;
+                    lastName?: string;
+                    email?: string;
+                    department?: string;
+                    status?: string;
+                  }[]
+                ).map((user) => (
+                  <div
+                    key={user._id}
+                    className="flex items-center justify-between rounded-lg border border-border p-3"
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-foreground">
+                        {user.firstName} {user.lastName}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {user.email}
+                      </span>
                     </div>
-                  )
-                )}
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={
+                          user.status === "active" ? "default" : "secondary"
+                        }
+                        className={
+                          user.status === "active"
+                            ? "bg-success/10 text-success hover:bg-success/20"
+                            : ""
+                        }
+                      >
+                        {user.status}
+                      </Badge>
+                      {user.department && (
+                        <Badge variant="outline" className="text-xs">
+                          {user.department}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>
@@ -121,49 +121,49 @@ export default async function DashboardPage() {
               </p>
             ) : (
               <div className="flex flex-col gap-3">
-                {stats.recentAssets.map(
-                  (asset: {
-                    _id: string
-                    name: string
-                    type: string
-                    status: string
-                    brand: string
-                  }) => (
-                    <div
-                      key={asset._id}
-                      className="flex items-center justify-between rounded-lg border border-border p-3"
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-foreground">
-                          {asset.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {asset.type}
-                          {asset.brand ? ` - ${asset.brand}` : ""}
-                        </span>
-                      </div>
-                      <Badge
-                        variant="outline"
-                        className={
-                          asset.status === "available"
-                            ? "border-success/30 bg-success/10 text-success"
-                            : asset.status === "assigned"
-                              ? "border-primary/30 bg-primary/10 text-primary"
-                              : asset.status === "maintenance"
-                                ? "border-warning/30 bg-warning/10 text-warning"
-                                : "border-destructive/30 bg-destructive/10 text-destructive"
-                        }
-                      >
-                        {asset.status}
-                      </Badge>
+                {(
+                  stats.recentAssets as {
+                    _id: string;
+                    name?: string;
+                    type?: string;
+                    status?: string;
+                    brand?: string;
+                  }[]
+                ).map((asset) => (
+                  <div
+                    key={asset._id}
+                    className="flex items-center justify-between rounded-lg border border-border p-3"
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-foreground">
+                        {asset.name ?? "Unnamed asset"}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {asset.type ?? "Unknown type"}
+                        {asset.brand ? ` - ${asset.brand}` : ""}
+                      </span>
                     </div>
-                  )
-                )}
+                    <Badge
+                      variant="outline"
+                      className={
+                        asset.status === "available"
+                          ? "border-success/30 bg-success/10 text-success"
+                          : asset.status === "assigned"
+                            ? "border-primary/30 bg-primary/10 text-primary"
+                            : asset.status === "maintenance"
+                              ? "border-warning/30 bg-warning/10 text-warning"
+                              : "border-destructive/30 bg-destructive/10 text-destructive"
+                      }
+                    >
+                      {asset.status ?? "unknown"}
+                    </Badge>
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }

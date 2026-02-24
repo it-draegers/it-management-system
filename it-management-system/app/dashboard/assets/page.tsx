@@ -163,7 +163,7 @@ export default function AssetsPage() {
             Manage IT equipment and computer inventory
           </p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)}>
+        <Button className="cursor-pointer" onClick={() => setIsCreateOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Add Asset
         </Button>
@@ -455,7 +455,7 @@ export default function AssetsPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-white hover:bg-destructive/90 focus:ring-destructive"
             >
               Delete
             </AlertDialogAction>

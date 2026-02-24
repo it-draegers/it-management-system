@@ -4,6 +4,7 @@ import { getDb } from "@/lib/mongodb"
 import { getCurrentAdmin } from "@/lib/auth"
 import { ObjectId } from "mongodb"
 import { z } from "zod"
+import { Asset } from "next/dist/compiled/@next/font/dist/google"
 
 const userSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -175,6 +176,43 @@ export async function updateUser(
     return { error: "Failed to update user" }
   }
 }
+
+export async function getUser(id: string) {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { error: "Unauthorized" };
+
+  const db = await getDb();
+  const user = await db
+    .collection("users")
+    .findOne({ _id: new ObjectId(id) });
+
+  if (!user) return { error: "User not found" };
+
+  
+  const assets = await db
+    .collection("assets")
+    .find({ assignedTo: user._id.toString() }) 
+    .project({ name: 1 }) 
+    .toArray();
+
+  const assignedAssets = assets.map((asset) => ({
+    _id: asset._id.toString(),
+    name: asset.name as string,
+  }));
+
+  return {
+    user: {
+      ...user,
+      _id: user._id.toString(),
+      createdAt: user.createdAt?.toISOString?.() || new Date().toISOString(),
+      updatedAt: user.updatedAt?.toISOString?.() || new Date().toISOString(),
+      assignedAssetsCount: assignedAssets.length,
+      assignedAssets,
+    },
+  };
+}
+
+
 
 export async function deleteUser(id: string) {
   const admin = await getCurrentAdmin()

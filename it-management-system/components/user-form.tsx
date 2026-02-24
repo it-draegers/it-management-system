@@ -1,60 +1,69 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Loader2 } from "lucide-react"
-import type { User } from "@/lib/actions/users"
+} from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
+import type { User } from "@/lib/actions/users";
 
 interface UserFormProps {
-  user?: User | null
+  user?: User | null;
   onSubmit: (data: {
-    firstName: string
-    lastName: string
-    email: string
-    department: string
-    position: string
-    phone: string
-    status: "active" | "inactive"
-    location: string
-  }) => Promise<void>
-  onCancel: () => void
-  loading?: boolean
+    firstName: string;
+    lastName: string;
+    email: string;
+    department: string;
+    position: string;
+    phone: string;
+    status: "active" | "inactive";
+    location: string;
+  }) => Promise<void>;
+  onCancel: () => void;
+  loading?: boolean;
 }
 
 const departments = [
-  "Engineering",
-  "Design",
+  "Wine",
+  "Meat",
+  "Grocery",
   "Marketing",
-  "Sales",
   "HR",
-  "Finance",
-  "Operations",
-  "Support",
-  "Management",
+  "Accounting",
+  "Owners",
   "IT",
-]
-const locations = [
-  "MP",
-  "LA",
-  "SSF"
-]
+  "Bakery",
+  "Housewares",
+  "Deli",
+  "Loss Prevention",
+  "Sales",
+];
+const locations = ["MP", "LA", "SSF", "Home/Remote"];
 
 export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
-  const [error, setError] = useState("")
+  const [error, setError] = useState("");
+  const [selected, setSelected] = useState(user?.department || "");
+  const [custom, setCustom] = useState("");
 
+  function handleSelect(val: string) {
+    setSelected(val);
+    if (val !== "Other") setCustom("");
+  }
+
+  function handleCustom(val: string) {
+    setCustom(val);
+  }
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setError("")
-    const formData = new FormData(e.currentTarget)
+    e.preventDefault();
+    setError("");
+    const formData = new FormData(e.currentTarget);
 
     try {
       await onSubmit({
@@ -66,9 +75,9 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         position: (formData.get("position") as string) || "",
         phone: (formData.get("phone") as string) || "",
         status: (formData.get("status") as "active" | "inactive") || "active",
-      })
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong")
+      setError(err instanceof Error ? err.message : "Something went wrong");
     }
   }
 
@@ -120,7 +129,8 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
           <Label htmlFor="department">Department</Label>
           <Select
             name="department"
-            defaultValue={user?.department || undefined}
+            onValueChange={handleSelect}
+            defaultValue={selected}
           >
             <SelectTrigger id="department">
               <SelectValue placeholder="Select department" />
@@ -131,15 +141,27 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
                   {dept}
                 </SelectItem>
               ))}
+              <SelectItem value="Other">Other</SelectItem>
             </SelectContent>
           </Select>
+          {/* keep a hidden input so the department value is submitted with the form */}
+          <input
+            type="hidden"
+            name="department"
+            value={selected === "Other" ? custom : selected}
+            readOnly
+          />
+          {selected === "Other" && (
+            <Input
+              placeholder="Enter department"
+              value={custom}
+              onChange={(e) => handleCustom(e.target.value)}
+            />
+          )}
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="location">Location</Label>
-          <Select
-            name="location"
-            defaultValue={user?.location || undefined}
-          >
+          <Select name="location" defaultValue={user?.location || undefined}>
             <SelectTrigger id="location">
               <SelectValue placeholder="Select location" />
             </SelectTrigger>
@@ -158,7 +180,7 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
             id="position"
             name="position"
             defaultValue={user?.position || ""}
-            placeholder="Software Engineer"
+            placeholder="Position"
           />
         </div>
       </div>
@@ -175,10 +197,7 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="status">Status</Label>
-          <Select
-            name="status"
-            defaultValue={user?.status || "active"}
-          >
+          <Select name="status" defaultValue={user?.status || "active"}>
             <SelectTrigger id="status">
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
@@ -191,10 +210,15 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
       </div>
 
       <div className="flex justify-end gap-3 pt-2">
-        <Button type="button" variant="outline" onClick={onCancel}>
+        <Button
+          className="cursor-pointer"
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+        >
           Cancel
         </Button>
-        <Button type="submit" disabled={loading}>
+        <Button className="cursor-pointer" type="submit" disabled={loading}>
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -208,5 +232,5 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         </Button>
       </div>
     </form>
-  )
+  );
 }

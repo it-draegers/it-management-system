@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
+
 import {
   Select,
   SelectContent,
@@ -15,19 +16,33 @@ import {
 } from "@/components/ui/select";
 import { Loader2, Plus, X } from "lucide-react";
 import type { Asset } from "@/lib/actions/assets";
+import router from "next/dist/shared/lib/router/router";
 
 interface AssetFormProps {
   asset?: Asset | null;
   onSubmit: (data: {
-    _id(_id: any, asset: {
-      name: string; type: "Desktop" |
-        "Laptop" |
-        "Monitor" |
-        "Keyboard" |
-        "Phone" |
-        "Printer" |
-        "Other"; brand: string; location: "MP" | "LA" | "SSF" | "Home"; model: string; serialNumber: string; status: "available" | "assigned" | "maintenance" | "retired"; purchaseDate: string; notes: string; customProperties: { key: string; value: string; }[];
-    }): unknown;
+    _id(
+      _id: any,
+      asset: {
+        name: string;
+        type:
+          | "Desktop"
+          | "Laptop"
+          | "Monitor"
+          | "Keyboard"
+          | "Phone"
+          | "Printer"
+          | "Other";
+        brand: string;
+        location: "MP" | "LA" | "SSF" | "Home";
+        model: string;
+        serialNumber: string;
+        status: "available" | "assigned" | "maintenance" | "retired";
+        purchaseDate: string;
+        notes: string;
+        customProperties: { key: string; value: string }[];
+      },
+    ): unknown;
     name: string;
     type:
       | "Desktop"
@@ -46,7 +61,7 @@ interface AssetFormProps {
     notes: string;
     customProperties: { key: string; value: string }[];
   }) => Promise<void>;
-  onCancel?: () => void           
+  onCancel?: () => void;
   loading?: boolean;
 }
 const locations = ["MP", "LA", "SSF", "Home"];
@@ -71,7 +86,6 @@ export function AssetForm({
   const [customProperties, setCustomProperties] = useState<
     { key: string; value: string }[]
   >(asset?.customProperties || []);
-  const router = useRouter();
 
   function addProperty() {
     setCustomProperties([...customProperties, { key: "", value: "" }]);
@@ -100,31 +114,51 @@ export function AssetForm({
       await onSubmit({
         name: formData.get("name") as string,
         type: formData.get("type") as AssetFormProps["onSubmit"] extends (
-          data: infer D
-        ) => unknown ? D extends { type: infer T; } ? T : never : never,
+          data: infer D,
+        ) => unknown
+          ? D extends { type: infer T }
+            ? T
+            : never
+          : never,
         brand: (formData.get("brand") as string) || "",
         model: (formData.get("model") as string) || "",
         serialNumber: (formData.get("serialNumber") as string) || "",
-        status: (formData.get("status") as "available" |
-          "assigned" |
-          "maintenance" |
-          "retired") || "available",
+        status:
+          (formData.get("status") as
+            | "available"
+            | "assigned"
+            | "maintenance"
+            | "retired") || "available",
         purchaseDate: (formData.get("purchaseDate") as string) || "",
-        location: (formData.get("location") as "MP" | "LA" | "SSF" | "Home") || null,
+        location:
+          (formData.get("location") as "MP" | "LA" | "SSF" | "Home") || null,
 
         notes: (formData.get("notes") as string) || "",
         customProperties: customProperties.filter((p) => p.key.trim()),
-        _id: function (_id: any, asset: {
-          name: string; type: "Desktop" |
-          "Laptop" |
-          "Monitor" |
-          "Keyboard" |
-          "Phone" |
-          "Printer" |
-          "Other"; brand: string; location: "MP" | "LA" | "SSF" | "Home"; model: string; serialNumber: string; status: "available" | "assigned" | "maintenance" | "retired"; purchaseDate: string; notes: string; customProperties: { key: string; value: string; }[];
-        }): unknown {
+        _id: function (
+          _id: any,
+          asset: {
+            name: string;
+            type:
+              | "Desktop"
+              | "Laptop"
+              | "Monitor"
+              | "Keyboard"
+              | "Phone"
+              | "Printer"
+              | "Other";
+            brand: string;
+            location: "MP" | "LA" | "SSF" | "Home";
+            model: string;
+            serialNumber: string;
+            status: "available" | "assigned" | "maintenance" | "retired";
+            purchaseDate: string;
+            notes: string;
+            customProperties: { key: string; value: string }[];
+          },
+        ): unknown {
           throw new Error("Function not implemented.");
-        }
+        },
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -262,6 +296,7 @@ export function AssetForm({
             variant="outline"
             size="sm"
             onClick={addProperty}
+            className="cursor-pointer"
           >
             <Plus className="mr-1 h-3.5 w-3.5" />
             Add Property
@@ -301,13 +336,18 @@ export function AssetForm({
       </div>
 
       <div className="flex justify-end gap-3 pt-2">
-        <Button type="button" variant="outline"  onClick={() => {
-            if (onCancel) onCancel()
-            else router.back()     // 👈 default cancel behavior
-          }}>
+        <Button
+          type="button"
+          variant="outline"
+          className="cursor-pointer"
+          onClick={() => {
+            if (onCancel) onCancel();
+            else router.back();
+          }}
+        >
           Cancel
         </Button>
-        <Button type="submit" disabled={loading}>
+        <Button className="cursor-pointer" type="submit" disabled={loading}>
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
