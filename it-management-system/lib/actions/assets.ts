@@ -167,9 +167,19 @@ export async function createAsset(formData: z.infer<typeof assetSchema>) {
 
     const hasAssignee = !!validated.assignedTo;
 
+    let finalStatus: Asset["status"];
+
+    if (hasAssignee) {
+     
+      finalStatus = "assigned";
+    } else {
+      
+      finalStatus = validated.status;
+    }
+
     await db.collection("assets").insertOne({
       ...validated,
-      status: hasAssignee ? "assigned" : "available",
+      status: finalStatus,          
       createdAt: new Date(),
       updatedAt: new Date(),
     });

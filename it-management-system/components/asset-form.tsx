@@ -75,10 +75,8 @@ export function AssetForm({
     "available" | "assigned" | "maintenance" | "retired" | "GeneralUse"
   >(asset?.status || "available");
 
-  // Dialog open state
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
-  // Selected user for assignment (no server call here)
   const [assignedUserId, setAssignedUserId] = useState<string | null>(
     (asset as any)?.assignedTo ?? null,
   );
@@ -110,7 +108,7 @@ export function AssetForm({
     setError("");
 
     const formData = new FormData(e.currentTarget);
-
+console.log("submitting status", status)
     try {
       await onSubmit({
         name: formData.get("name") as string,
