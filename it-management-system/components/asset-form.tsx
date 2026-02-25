@@ -29,6 +29,7 @@ interface AssetFormProps {
       | "Monitor"
       | "Phone"
       | "Printer"
+      | "Tablet"
       | "Server"
       | "Other";
     brand: string;
@@ -54,6 +55,8 @@ const assetTypes = [
   "Keyboard",
   "Phone",
   "Printer",
+  "Tablet",
+  "Server",
   "Other",
 ] as const;
 

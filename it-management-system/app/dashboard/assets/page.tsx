@@ -74,7 +74,6 @@ const statusColors: Record<string, string> = {
   maintenance: "border-warning/30 bg-warning/10 text-warning",
   retired: "border-destructive/30 bg-destructive/10 text-destructive",
   GeneralUse: "border-primary/30 bg-primary/10 text-primary",
-
 };
 
 export default function AssetsPage() {
@@ -198,6 +197,9 @@ export default function AssetsPage() {
             <SelectItem value="Keyboard">Keyboard</SelectItem>
             <SelectItem value="Phone">Phone</SelectItem>
             <SelectItem value="Printer">Printer</SelectItem>
+            <SelectItem value="Tablet">Tablet</SelectItem>
+            <SelectItem value="Server">Server</SelectItem>
+
             <SelectItem value="Other">Other</SelectItem>
           </SelectContent>
         </Select>
@@ -237,9 +239,7 @@ export default function AssetsPage() {
             <TableRow className="hover:bg-transparent">
               <TableHead className="text-muted-foreground">Name</TableHead>
               <TableHead className="text-muted-foreground">Type</TableHead>
-              <TableHead className="text-muted-foreground">
-                Notes
-              </TableHead>
+              <TableHead className="text-muted-foreground">Notes</TableHead>
 
               <TableHead className="text-muted-foreground">Status</TableHead>
               <TableHead className="text-muted-foreground">
@@ -297,7 +297,6 @@ export default function AssetsPage() {
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {asset.notes || "-"}
-                    
                   </TableCell>
 
                   <TableCell>
@@ -305,7 +304,10 @@ export default function AssetsPage() {
                       variant="outline"
                       className={statusColors[asset.status] || ""}
                     >
-                      { asset.status === "GeneralUse" ? "General Use" : asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}
+                      {asset.status === "GeneralUse"
+                        ? "General Use"
+                        : asset.status.charAt(0).toUpperCase() +
+                          asset.status.slice(1)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">

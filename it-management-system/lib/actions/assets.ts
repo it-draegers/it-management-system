@@ -19,6 +19,8 @@ const assetSchema = z.object({
     "Keyboard",
     "Phone",
     "Printer",
+    "Tablet",
+    "Server",
     "Other",
   ]),
   location: z.enum(["SSF", "MP", "LA", "Home"]),
