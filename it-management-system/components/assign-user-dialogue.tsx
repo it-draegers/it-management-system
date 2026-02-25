@@ -49,7 +49,7 @@ export function AssignUserDialog({
     
     const result = await getAssets({ status: "available" });
     if ("assets" in result) {
-      setAssets(result.assets);
+      setAssets(result.assets ?? []);
     }
   }
 

@@ -1,6 +1,9 @@
-import { notFound } from "next/navigation";
+
+
+
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { getUser } from "@/lib/actions/users";
+import { deleteUser, getUser } from "@/lib/actions/users";
 import {
   Card,
   CardContent,
@@ -31,10 +34,10 @@ import {
   Pencil,
   Computer,
   Phone,
+  Trash2,
 } from "lucide-react";
-import React from "react";
 import { UserAssetsCard } from "@/components/UserAssetsCard";
-
+import { DeleteUserButton } from "@/components/ui/DeleteUserButton";
 const userStatusColors: Record<string, string> = {
   active: "border-success/30 bg-success/10 text-success",
   inactive: "border-secondary/30 bg-secondary/10 text-secondary",
@@ -53,9 +56,10 @@ export default async function UserDetailPage({
   }
   console.log("User data:", data);
 
-  const user = "user" in data ? data.user : null;
-  if (!user) notFound();
 
+  const user = "user" in data ? data.user : null;
+  
+  if (!user) notFound();
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -91,12 +95,19 @@ export default async function UserDetailPage({
                 User Details
               </CardTitle>
             </div>
+            <div className="flex items-center gap-2">
             <Button asChild variant="default">
               <Link href={`/dashboard/users/${id}/edit`}>
                 <Pencil className="h-4 w-4" />
                 <span className="sr-only">Edit user</span>
               </Link>
             </Button>
+            
+ 
+
+  <DeleteUserButton userId={user._id.toString()} />
+</div>
+            
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-4">
@@ -172,7 +183,7 @@ export default async function UserDetailPage({
         </Card>
 <UserAssetsCard
   userId={user._id}
-  userName={`${user.firstName} ${user.lastName}`}
+  userName={`${(user as any).firstName} ${(user as any).lastName}`}
   assignedAssets={user.assignedAssets ?? []}
   createdAt={user.createdAt}
   updatedAt={user.updatedAt}

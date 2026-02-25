@@ -32,7 +32,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { AssetAssignmentCard } from "@/components/asset-assignment-card";
-
+import { DeleteAssetButton } from "@/components/ui/DeleteAssetButton";
 const statusColors: Record<string, string> = {
   available: "border-success/30 bg-success/10 text-success",
   assigned: "border-primary/30 bg-primary/10 text-primary",
@@ -88,12 +88,16 @@ export default async function AssetDetailPage({
                 Asset Information
               </CardTitle>
             </div>
-            <Button asChild variant="default">
-              <Link href={`/dashboard/assets/${id}/edit`}>
-                <Pencil className="h-4 w-4" />
-                <span className="sr-only">Edit asset</span>
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="default">
+                <Link href={`/dashboard/assets/${id}/edit`}>
+                  <Pencil className="h-4 w-4" />
+                  <span className="sr-only">Edit asset</span>
+                </Link>
+              </Button>
+
+              <DeleteAssetButton assetId={asset._id.toString()} />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-4">
@@ -110,9 +114,7 @@ export default async function AssetDetailPage({
               <div className="flex items-center gap-3">
                 <HardDrive className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">
-                    Brand / Model
-                  </p>
+                  <p className="text-xs text-muted-foreground">Brand / Model</p>
                   <p className="text-sm font-medium text-foreground">
                     {asset.brand || "-"} {asset.model || ""}
                   </p>
@@ -132,9 +134,7 @@ export default async function AssetDetailPage({
               <div className="flex items-center gap-3">
                 <Hash className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">
-                    Serial Number
-                  </p>
+                  <p className="text-xs text-muted-foreground">Serial Number</p>
                   <p className="font-mono text-sm font-medium text-foreground">
                     {asset.serialNumber || "-"}
                   </p>
@@ -144,9 +144,7 @@ export default async function AssetDetailPage({
               <div className="flex items-center gap-3">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">
-                    Purchase Date
-                  </p>
+                  <p className="text-xs text-muted-foreground">Purchase Date</p>
                   <p className="text-sm font-medium text-foreground">
                     {asset.purchaseDate || "-"}
                   </p>

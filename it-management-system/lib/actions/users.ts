@@ -15,6 +15,7 @@ const userSchema = z.object({
   phone: z.string().optional().default(""),
   status: z.enum(["active", "inactive"]).default("active"),
   location: z.string().optional().default(""),
+  employeeId: z.string().optional().default(""),
 })
 
 export type User = {
@@ -26,6 +27,7 @@ export type User = {
   location: string
   position: string
   phone: string
+  emplpoyeeId?: string
   status: "active" | "inactive"
   assignedAssetsCount?: number
   assignedAssets?: { _id: string; name: string }[]

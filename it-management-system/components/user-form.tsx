@@ -31,6 +31,7 @@ interface UserFormProps {
     phone: string;
     status: "active" | "inactive";
     location: string;
+    employeeId: string;
   }) => Promise<void>;
   onCancel: () => void;
   loading?: boolean;
@@ -101,6 +102,7 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         position: (formData.get("position") as string) || "",
         phone: (formData.get("phone") as string) || "",
         status: (formData.get("status") as "active" | "inactive") || "active",
+        employeeId: (formData.get("employeeId") as string) || "",
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -221,6 +223,18 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
           />
         </div>
       </div>
+
+              <div className="flex flex-col gap-2">
+          <Label htmlFor="employeeId">Employee ID</Label>
+          <Input
+            id="employeeId"
+            name="employeeId"
+            defaultValue={user?.employeeId || ""}
+            placeholder="Employee ID"
+          />
+        </div>
+      
+
 
       {/* Phone */}
       <div className="flex flex-col gap-2">

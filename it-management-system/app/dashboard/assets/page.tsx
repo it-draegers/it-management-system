@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   getAssets,
   createAsset,
@@ -10,10 +10,10 @@ import {
   assignAsset,
   unassignAsset,
   type Asset,
-} from "@/lib/actions/assets"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+} from "@/lib/actions/assets";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -21,14 +21,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,23 +38,23 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { AssetForm } from "@/components/asset-form"
-import { AssignAssetDialog } from "@/components/assign-asset-dialog"
+} from "@/components/ui/dropdown-menu";
+import { AssetForm } from "@/components/asset-form";
+import { AssignAssetDialog } from "@/components/assign-asset-dialog";
 import {
   Search,
   Plus,
@@ -65,29 +65,29 @@ import {
   Link2,
   Unlink,
   Eye,
-} from "lucide-react"
-import Loading from "@/components/ui/loading"
+} from "lucide-react";
+import Loading from "@/components/ui/loading";
 
 const statusColors: Record<string, string> = {
   available: "border-success/30 bg-success/10 text-success",
   assigned: "border-primary/30 bg-primary/10 text-primary",
   maintenance: "border-warning/30 bg-warning/10 text-warning",
   retired: "border-destructive/30 bg-destructive/10 text-destructive",
-}
+};
 
 export default function AssetsPage() {
-  const router = useRouter()
-  const [assets, setAssets] = useState<Asset[]>([])
-  const [search, setSearch] = useState("")
-  const [typeFilter, setTypeFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [locationFilter, setLocationFilter] = useState("all")
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [editingAsset, setEditingAsset] = useState<Asset | null>(null)
-  const [deletingAsset, setDeletingAsset] = useState<Asset | null>(null)
-  const [assigningAsset, setAssigningAsset] = useState<Asset | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [pageLoading, setPageLoading] = useState(true)
+  const router = useRouter();
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
+  const [deletingAsset, setDeletingAsset] = useState<Asset | null>(null);
+  const [assigningAsset, setAssigningAsset] = useState<Asset | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
 
   const loadAssets = useCallback(async () => {
     const result = await getAssets({
@@ -95,64 +95,64 @@ export default function AssetsPage() {
       type: typeFilter,
       status: statusFilter,
       location: locationFilter,
-    })
+    });
     if ("assets" in result) {
-      setAssets(result.assets ?? [])
+      setAssets(result.assets ?? []);
     }
-    setPageLoading(false)
-  }, [search, typeFilter, statusFilter, locationFilter])
+    setPageLoading(false);
+  }, [search, typeFilter, statusFilter, locationFilter]);
 
   useEffect(() => {
-    loadAssets()
-  }, [loadAssets])
+    loadAssets();
+  }, [loadAssets]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      loadAssets()
-    }, 300)
-    return () => clearTimeout(timeout)
-  }, [search, loadAssets])
+      loadAssets();
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [search, loadAssets]);
 
   async function handleCreate(data: Parameters<typeof createAsset>[0]) {
-    setLoading(true)
-    const result = await createAsset(data)
-    setLoading(false)
+    setLoading(true);
+    const result = await createAsset(data);
+    setLoading(false);
     if ("error" in result && result.error) {
-      throw new Error(result.error)
+      throw new Error(result.error);
     }
-    setIsCreateOpen(false)
-    loadAssets()
+    setIsCreateOpen(false);
+    loadAssets();
   }
 
   async function handleUpdate(data: Parameters<typeof updateAsset>[1]) {
-    if (!editingAsset) return
-    setLoading(true)
-    const result = await updateAsset(editingAsset._id, data)
-    setLoading(false)
+    if (!editingAsset) return;
+    setLoading(true);
+    const result = await updateAsset(editingAsset._id, data);
+    setLoading(false);
     if ("error" in result && result.error) {
-      throw new Error(result.error)
+      throw new Error(result.error);
     }
-    setEditingAsset(null)
-    loadAssets()
+    setEditingAsset(null);
+    loadAssets();
   }
 
   async function handleDelete() {
-    if (!deletingAsset) return
-    await deleteAsset(deletingAsset._id)
-    setDeletingAsset(null)
-    loadAssets()
+    if (!deletingAsset) return;
+    await deleteAsset(deletingAsset._id);
+    setDeletingAsset(null);
+    loadAssets();
   }
 
   async function handleAssign(userId: string) {
-    if (!assigningAsset) return
-    await assignAsset(assigningAsset._id, userId)
-    setAssigningAsset(null)
-    loadAssets()
+    if (!assigningAsset) return;
+    await assignAsset(assigningAsset._id, userId);
+    setAssigningAsset(null);
+    loadAssets();
   }
 
   async function handleUnassign(assetId: string) {
-    await unassignAsset(assetId)
-    loadAssets()
+    await unassignAsset(assetId);
+    loadAssets();
   }
 
   return (
@@ -164,7 +164,10 @@ export default function AssetsPage() {
             Manage IT equipment and computer inventory
           </p>
         </div>
-        <Button className="cursor-pointer" onClick={() => setIsCreateOpen(true)}>
+        <Button
+          className="cursor-pointer"
+          onClick={() => setIsCreateOpen(true)}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add Asset
         </Button>
@@ -197,7 +200,6 @@ export default function AssetsPage() {
           </SelectContent>
         </Select>
 
-
         <Select value={locationFilter} onValueChange={setLocationFilter}>
           <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="Location" />
@@ -210,7 +212,7 @@ export default function AssetsPage() {
             <SelectItem value="Home">Home</SelectItem>
           </SelectContent>
         </Select>
-        
+
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="Status" />
@@ -234,14 +236,12 @@ export default function AssetsPage() {
               <TableHead className="text-muted-foreground">
                 Brand / Model
               </TableHead>
-              
+
               <TableHead className="text-muted-foreground">Status</TableHead>
               <TableHead className="text-muted-foreground">
                 Assigned To
               </TableHead>
-              <TableHead className="text-muted-foreground">
-                Location
-              </TableHead>
+              <TableHead className="text-muted-foreground">Location</TableHead>
               <TableHead className="w-[50px]">
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -281,9 +281,7 @@ export default function AssetsPage() {
                 <TableRow
                   key={asset._id}
                   className="cursor-pointer"
-                  onClick={() =>
-                    router.push(`/dashboard/assets/${asset._id}`)
-                  }
+                  onClick={() => router.push(`/dashboard/assets/${asset._id}`)}
                 >
                   <TableCell className="font-medium text-foreground">
                     {asset.name}
@@ -298,7 +296,7 @@ export default function AssetsPage() {
                     {asset.model ? ` ${asset.model}` : ""}
                     {!asset.brand && !asset.model ? "-" : ""}
                   </TableCell>
-                  
+
                   <TableCell>
                     <Badge
                       variant="outline"
@@ -331,8 +329,8 @@ export default function AssetsPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={(e) => {
-                            e.stopPropagation()
-                            router.push(`/dashboard/assets/${asset._id}`)
+                            e.stopPropagation();
+                            router.push(`/dashboard/assets/${asset._id}`);
                           }}
                         >
                           <Eye className="mr-2 h-4 w-4" />
@@ -340,8 +338,8 @@ export default function AssetsPage() {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={(e) => {
-                            e.stopPropagation()
-                            setEditingAsset(asset)
+                            e.stopPropagation();
+                            setEditingAsset(asset);
                           }}
                         >
                           <Pencil className="mr-2 h-4 w-4" />
@@ -351,8 +349,8 @@ export default function AssetsPage() {
                         {asset.assignedTo ? (
                           <DropdownMenuItem
                             onClick={(e) => {
-                              e.stopPropagation()
-                              handleUnassign(asset._id)
+                              e.stopPropagation();
+                              handleUnassign(asset._id);
                             }}
                           >
                             <Unlink className="mr-2 h-4 w-4" />
@@ -361,8 +359,8 @@ export default function AssetsPage() {
                         ) : (
                           <DropdownMenuItem
                             onClick={(e) => {
-                              e.stopPropagation()
-                              setAssigningAsset(asset)
+                              e.stopPropagation();
+                              setAssigningAsset(asset);
                             }}
                           >
                             <Link2 className="mr-2 h-4 w-4" />
@@ -373,8 +371,8 @@ export default function AssetsPage() {
                         <DropdownMenuItem
                           className="text-destructive focus:text-destructive"
                           onClick={(e) => {
-                            e.stopPropagation()
-                            setDeletingAsset(asset)
+                            e.stopPropagation();
+                            setDeletingAsset(asset);
                           }}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
@@ -464,5 +462,5 @@ export default function AssetsPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }
