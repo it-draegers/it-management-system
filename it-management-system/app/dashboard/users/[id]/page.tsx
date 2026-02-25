@@ -33,6 +33,7 @@ import {
   Phone,
 } from "lucide-react";
 import React from "react";
+import { UserAssetsCard } from "@/components/UserAssetsCard";
 
 const userStatusColors: Record<string, string> = {
   active: "border-success/30 bg-success/10 text-success",
@@ -169,76 +170,15 @@ export default async function UserDetailPage({
             </div>
           </CardContent>
         </Card>
-
+<UserAssetsCard
+  userId={user._id}
+  userName={`${user.firstName} ${user.lastName}`}
+  assignedAssets={user.assignedAssets ?? []}
+  createdAt={user.createdAt}
+  updatedAt={user.updatedAt}
+/>
         {/* Assignment Info Card */}
-        <Card className="border-border">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <CardTitle className="text-base font-semibold text-foreground">
-                Assignment
-              </CardTitle>
-            </div>
-            <CardDescription>Asset assigned for user</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {user.assignedAssets ? (
-              <div className="flex items-center gap-4 rounded-lg border border-border p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <Computer className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    {Array.isArray(user.assignedAssets) &&
-                    user.assignedAssets.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {user.assignedAssets.map((asset) => (
-                          <Badge
-                            key={asset._id}
-                            variant="outline"
-                            className="text-xs"
-                          >
-                            {asset.name}
-                          </Badge>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">
-                        No assets
-                      </span>
-                    )}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border py-8 text-center">
-                <User className="h-8 w-8 text-muted-foreground/50" />
-                <p className="text-sm text-muted-foreground">
-                  This user has no assigned assets
-                </p>
-              </div>
-            )}
-
-            <div className="mt-6">
-              <p className="text-xs text-muted-foreground">
-                Created:{" "}
-                {new Date(user.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Last updated:{" "}
-                {new Date(user.updatedAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+     
       </div>
     </div>
   );

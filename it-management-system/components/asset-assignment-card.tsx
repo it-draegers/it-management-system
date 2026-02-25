@@ -85,11 +85,10 @@ export function AssetAssignmentCard({
         )}
 
         {/* Assign / Reassign button */}
-        <div className="mt-4 flex justify-start">
+        <div className="mt-4  gap-5 flex justify-center">
           <Button variant="outline" size="sm" onClick={() => setAssignDialogOpen(true)}>
             {assignedTo ? "Reassign asset" : "Assign asset to user"}
           </Button>
-        </div>
 
         {/* AssignAssetDialog (pick user) */}
         <AssignAssetDialog
@@ -97,13 +96,14 @@ export function AssetAssignmentCard({
           onOpenChange={setAssignDialogOpen}
           assetName={assetName}
           onAssign={handleAssign}
+          
         />
 
         <Button className='cursor-pointer' variant="destructive" size="sm" onClick={() => handleAssign("")} disabled={!assignedTo}>
             <Unlink className="mr-2 h-4 w-4" />
             Unassign
         </Button>
-
+</div>
         <div className="mt-6">
           <p className="text-xs text-muted-foreground">
             Created:{" "}
