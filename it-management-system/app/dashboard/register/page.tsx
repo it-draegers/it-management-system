@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import Link from "next/link"
 import { register } from "@/lib/actions/auth"
 import { Button } from "@/components/ui/button"
@@ -16,7 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Monitor, Loader2 } from "lucide-react"
-
+import { navigate } from "next/dist/client/components/segment-cache/navigation"
 export default function RegisterPage() {
   const router = useRouter()
   const [error, setError] = useState("")
@@ -38,7 +38,8 @@ export default function RegisterPage() {
       setError(result.error)
       setLoading(false)
     } else {
-      router.push("/dashboard")
+      console.log(result, "result")
+      redirect("/dashboard")
       router.refresh()
     }
   }
