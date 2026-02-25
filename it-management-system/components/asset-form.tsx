@@ -61,7 +61,11 @@ const departments = [
   "IT",
   "Payroll",
   "Owners",
-  "Houseware"
+  "Houseware",
+  "Deli",
+  "wine",
+  "Gift Baskets",
+
 ] as const;
 
 type Department = (typeof departments)[number];
