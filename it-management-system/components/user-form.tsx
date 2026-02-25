@@ -17,7 +17,7 @@ import { Loader2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 import type { User } from "@/lib/actions/users";
-import { AssignAssetDialog } from "@/components/assign-asset-dialog";
+import { AssignUserDialog } from "@/components/assign-user-dialogue";
 import { assignAsset, unassignAsset } from "@/lib/actions/assets";
 
 interface UserFormProps {
