@@ -42,14 +42,11 @@ interface AssetFormProps {
     notes: string;
     customProperties: { key: string; value: string }[];
     assignedTo: string | null;
-    department: Department | "";     
-
+    department: Department | "";
   }) => Promise<void>;
   onCancel?: () => void;
   loading?: boolean;
 }
-
-
 
 const departments = [
   "Meat",
@@ -64,6 +61,7 @@ const departments = [
   "IT",
   "Payroll",
   "Owners",
+  "Houseware"
 ] as const;
 
 type Department = (typeof departments)[number];
@@ -125,40 +123,39 @@ export function AssetForm({
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-  e.preventDefault();
-  setError("");
+    e.preventDefault();
+    setError("");
 
-  const formData = new FormData(e.currentTarget);
-  console.log("submitting status", status);
+    const formData = new FormData(e.currentTarget);
+    console.log("submitting status", status);
 
-  try {
-    await onSubmit({
-      name: formData.get("name") as string,
-      type: (formData.get("type") as any) || "Laptop",
-      brand: (formData.get("brand") as string) || "",
-      model: (formData.get("model") as string) || "",
-      serialNumber: (formData.get("serialNumber") as string) || "",
-      status,
-      purchaseDate: (formData.get("purchaseDate") as string) || "",
-      location:
-        (formData.get("location") as "MP" | "LA" | "SSF" | "Home") || "MP",
-      notes: (formData.get("notes") as string) || "",
-      customProperties: customProperties.filter((p) => p.key.trim()),
-      assignedTo: status === "assigned" ? assignedUserId : null,
-department:
-  (formData.get("department") as string) === "none"
-    ? ""
-    : (formData.get("department") as string),    });
-  } catch (err) {
-    setError(err instanceof Error ? err.message : "Something went wrong");
+    try {
+      await onSubmit({
+        name: formData.get("name") as string,
+        type: (formData.get("type") as any) || "Laptop",
+        brand: (formData.get("brand") as string) || "",
+        model: (formData.get("model") as string) || "",
+        serialNumber: (formData.get("serialNumber") as string) || "",
+        status,
+        purchaseDate: (formData.get("purchaseDate") as string) || "",
+        location:
+          (formData.get("location") as "MP" | "LA" | "SSF" | "Home") || "MP",
+        notes: (formData.get("notes") as string) || "",
+        customProperties: customProperties.filter((p) => p.key.trim()),
+        assignedTo: status === "assigned" ? assignedUserId : null,
+        department:
+          (formData.get("department") as string) === "none"
+            ? ""
+            : (formData.get("department") as string),
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    }
   }
-}
 
- 
   async function handleAssignUser(userId: string): Promise<void> {
     setAssignedUserId(userId);
     console.log("Selected user for assignment:", userId);
-   
   }
 
   return (
@@ -289,28 +286,28 @@ department:
           </div>
         </div>
 
-<div className="grid grid-cols-2 gap-4">
-  <div className="flex flex-col gap-2">
-    <Label htmlFor="department">Department</Label>
-    <Select
-      name="department"
-      defaultValue={(asset as any)?.department || ""}
-    >
-      <SelectTrigger id="department">
-        <SelectValue placeholder="Select department" />
-      </SelectTrigger>
-      <SelectContent>
-        {/* Explicit 'no department' option */}
-        <SelectItem value="none">No Department</SelectItem>
-        {departments.map((dept) => (
-          <SelectItem key={dept} value={dept}>
-            {dept}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </div>
-</div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="department">Department</Label>
+            <Select
+              name="department"
+              defaultValue={(asset as any)?.department || ""}
+            >
+              <SelectTrigger id="department">
+                <SelectValue placeholder="Select department" />
+              </SelectTrigger>
+              <SelectContent>
+                {/* Explicit 'no department' option */}
+                <SelectItem value="none">No Department</SelectItem>
+                {departments.map((dept) => (
+                  <SelectItem key={dept} value={dept}>
+                    {dept}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="purchaseDate">Purchase Date</Label>
