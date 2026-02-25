@@ -39,7 +39,7 @@ interface AssetFormProps {
     purchaseDate: string;
     notes: string;
     customProperties: { key: string; value: string }[];
-    assignedTo?: string | null;
+    assignedTo: string | null;
   }) => Promise<void>;
   onCancel?: () => void;
   loading?: boolean;
@@ -72,8 +72,10 @@ export function AssetForm({
     "available" | "assigned" | "maintenance" | "retired"
   >(asset?.status || "available");
 
+  // Dialog open state
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
+  // Selected user for assignment (no server call here)
   const [assignedUserId, setAssignedUserId] = useState<string | null>(
     (asset as any)?.assignedTo ?? null,
   );
@@ -119,15 +121,18 @@ export function AssetForm({
           (formData.get("location") as "MP" | "LA" | "SSF" | "Home") || "MP",
         notes: (formData.get("notes") as string) || "",
         customProperties: customProperties.filter((p) => p.key.trim()),
-        assignedTo: status === "assigned" ? (assignedUserId ?? null) : null,
+        assignedTo: status === "assigned" ? assignedUserId : null,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     }
   }
 
+ 
   async function handleAssignUser(userId: string): Promise<void> {
     setAssignedUserId(userId);
+    console.log("Selected user for assignment:", userId);
+   
   }
 
   return (
@@ -215,6 +220,7 @@ export function AssetForm({
           </div>
         </div>
 
+        {/* Status + open dialog when "assigned" */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="status">Status</Label>
@@ -276,6 +282,7 @@ export function AssetForm({
           />
         </div>
 
+        {/* Custom Properties */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <Label className="text-sm font-medium">Custom Properties</Label>
@@ -352,6 +359,7 @@ export function AssetForm({
         </div>
       </form>
 
+      {/* Dialog only picks user; real assignment happens on submit */}
       {status === "assigned" && (
         <AssignAssetDialog
           open={assignDialogOpen}

@@ -31,6 +31,7 @@ const assetSchema = z.object({
   purchaseDate: z.string().optional().default(""),
   notes: z.string().optional().default(""),
   customProperties: z.array(customPropertySchema).optional().default([]),
+  assignedTo: z.string().nullable().optional().default(null),
 });
 
 export type Asset = {
@@ -90,7 +91,6 @@ export async function getAssets(params?: {
     .sort({ createdAt: -1 })
     .toArray();
 
-  // Resolve assigned user names
   const assetsWithNames = await Promise.all(
     assets.map(async (asset) => {
       let assignedToName: string | undefined;
@@ -163,9 +163,11 @@ export async function createAsset(formData: z.infer<typeof assetSchema>) {
     const validated = assetSchema.parse(formData);
     const db = await getDb();
 
+    const hasAssignee = !!validated.assignedTo;
+
     await db.collection("assets").insertOne({
       ...validated,
-      assignedTo: null,
+      status: hasAssignee ? "assigned" : "available",
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -175,6 +177,7 @@ export async function createAsset(formData: z.infer<typeof assetSchema>) {
     if (error instanceof z.ZodError) {
       return { error: error.errors[0].message };
     }
+    console.error("Failed to create asset:", error);
     return { error: "Failed to create asset" };
   }
 }
