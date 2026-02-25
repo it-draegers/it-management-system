@@ -1,4 +1,3 @@
-// app/dashboard/users/[id]/edit/page.tsx
 import { notFound, redirect } from "next/navigation";
 import { getUser, updateUser } from "@/lib/actions/users";
 import { UserForm } from "@/components/user-form";

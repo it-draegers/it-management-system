@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/select";
 import { Loader2, Plus, X } from "lucide-react";
 import type { Asset } from "@/lib/actions/assets";
-import router from "next/dist/shared/lib/router/router";
 
 interface AssetFormProps {
   asset?: Asset | null;
@@ -86,6 +85,8 @@ export function AssetForm({
   const [customProperties, setCustomProperties] = useState<
     { key: string; value: string }[]
   >(asset?.customProperties || []);
+
+  const router = useRouter();
 
   function addProperty() {
     setCustomProperties([...customProperties, { key: "", value: "" }]);

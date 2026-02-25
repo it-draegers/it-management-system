@@ -66,6 +66,7 @@ import {
   Unlink,
   Eye,
 } from "lucide-react"
+import Loading from "@/components/ui/loading"
 
 const statusColors: Record<string, string> = {
   available: "border-success/30 bg-success/10 text-success",
@@ -253,7 +254,7 @@ export default function AssetsPage() {
                   colSpan={7}
                   className="py-12 text-center text-muted-foreground"
                 >
-                  Loading assets...
+                  <Loading />
                 </TableCell>
               </TableRow>
             ) : assets.length === 0 ? (

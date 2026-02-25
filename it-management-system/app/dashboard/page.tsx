@@ -9,7 +9,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, HardDrive } from "lucide-react";
-
+import Link from "next/link"; 
+import { notFound } from "next/navigation";
+import router from "next/dist/client/router";
 export default async function DashboardPage() {
   const result = await getStats();
 
@@ -18,7 +20,7 @@ export default async function DashboardPage() {
   }
 
   const { stats } = result;
-
+  
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -63,9 +65,10 @@ export default async function DashboardPage() {
                     status?: string;
                   }[]
                 ).map((user) => (
-                  <div
+                   <Link
                     key={user._id}
-                    className="flex items-center justify-between rounded-lg border border-border p-3"
+                    href={`/dashboard/users/${user._id}`} 
+                    className="flex items-center justify-between rounded-lg border border-border p-3 cursor-pointer hover:bg-muted transition-colors"
                   >
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-foreground">
@@ -94,7 +97,7 @@ export default async function DashboardPage() {
                         </Badge>
                       )}
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -130,9 +133,10 @@ export default async function DashboardPage() {
                     brand?: string;
                   }[]
                 ).map((asset) => (
-                  <div
+                   <Link
                     key={asset._id}
-                    className="flex items-center justify-between rounded-lg border border-border p-3"
+                    href={`/dashboard/assets/${asset._id}`} 
+                    className="flex items-center justify-between rounded-lg border border-border p-3 cursor-pointer hover:bg-muted transition-colors"
                   >
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-foreground">
@@ -157,7 +161,7 @@ export default async function DashboardPage() {
                     >
                       {asset.status ?? "unknown"}
                     </Badge>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}

@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react"
 import {
   getUsers,
   createUser,
@@ -8,10 +8,10 @@ import {
   deleteUser,
   getDepartments,
   type User,
-} from "@/lib/actions/users";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+} from "@/lib/actions/users"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import {
   Table,
   TableBody,
@@ -19,14 +19,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,21 +36,21 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { UserForm } from "@/components/user-form";
+} from "@/components/ui/dropdown-menu"
+import { UserForm } from "@/components/user-form"
 import {
   Search,
   Plus,
@@ -59,22 +59,23 @@ import {
   Trash2,
   Users,
   HardDrive,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
+} from "lucide-react"
+import { useRouter } from "next/navigation"
+import Loading from "@/components/ui/loading"
 
 export default function UsersPage() {
-  const router = useRouter();
-  const [users, setUsers] = useState<User[]>([]);
-  const [departments, setDepartments] = useState<string[]>([]);
-  const [search, setSearch] = useState("");
-  const [deptFilter, setDeptFilter] = useState("all");
-  const [locationFilter, setLocationFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [deletingUser, setDeletingUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [pageLoading, setPageLoading] = useState(true);
+  const router = useRouter()
+  const [users, setUsers] = useState<User[]>([])
+  const [departments, setDepartments] = useState<string[]>([])
+  const [search, setSearch] = useState("")
+  const [deptFilter, setDeptFilter] = useState("all")
+  const [locationFilter, setLocationFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [deletingUser, setDeletingUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [pageLoading, setPageLoading] = useState(true)
 
   const loadUsers = useCallback(async () => {
     const result = await getUsers({
@@ -82,69 +83,69 @@ export default function UsersPage() {
       department: deptFilter,
       status: statusFilter,
       location: locationFilter,
-    });
+    })
     // Ensure we never pass undefined to setUsers
     if ("users" in result) {
-      setUsers(result.users ?? []);
+      setUsers(result.users ?? [])
     } else {
-      setUsers([]);
+      setUsers([])
     }
-    setPageLoading(false);
-  }, [search, deptFilter, statusFilter, locationFilter]);
+    setPageLoading(false)
+  }, [search, deptFilter, statusFilter, locationFilter])
 
   const loadDepartments = useCallback(async () => {
-    const result = await getDepartments();
+    const result = await getDepartments()
     if ("departments" in result) {
-      setDepartments(result.departments ?? []);
+      setDepartments(result.departments ?? [])
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    loadUsers();
-  }, [loadUsers]);
+    loadUsers()
+  }, [loadUsers])
 
   useEffect(() => {
-    loadDepartments();
-  }, [loadDepartments]);
+    loadDepartments()
+  }, [loadDepartments])
 
   // Debounced search
   useEffect(() => {
     const timeout = setTimeout(() => {
-      loadUsers();
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [search, loadUsers]);
+      loadUsers()
+    }, 300)
+    return () => clearTimeout(timeout)
+  }, [search, loadUsers])
 
   async function handleCreate(data: Parameters<typeof createUser>[0]) {
-    setLoading(true);
-    const result = await createUser(data);
-    setLoading(false);
+    setLoading(true)
+    const result = await createUser(data)
+    setLoading(false)
     if ("error" in result && result.error) {
-      throw new Error(result.error);
+      throw new Error(result.error)
     }
-    setIsCreateOpen(false);
-    loadUsers();
-    loadDepartments();
+    setIsCreateOpen(false)
+    loadUsers()
+    loadDepartments()
   }
 
   async function handleUpdate(data: Parameters<typeof updateUser>[1]) {
-    if (!editingUser) return;
-    setLoading(true);
-    const result = await updateUser(editingUser._id, data);
-    setLoading(false);
+    if (!editingUser) return
+    setLoading(true)
+    const result = await updateUser(editingUser._id, data)
+    setLoading(false)
     if ("error" in result && result.error) {
-      throw new Error(result.error);
+      throw new Error(result.error)
     }
-    setEditingUser(null);
-    loadUsers();
-    loadDepartments();
+    setEditingUser(null)
+    loadUsers()
+    loadDepartments()
   }
 
   async function handleDelete() {
-    if (!deletingUser) return;
-    await deleteUser(deletingUser._id);
-    setDeletingUser(null);
-    loadUsers();
+    if (!deletingUser) return
+    await deleteUser(deletingUser._id)
+    setDeletingUser(null)
+    loadUsers()
   }
 
   return (
@@ -156,10 +157,7 @@ export default function UsersPage() {
             Manage employees and their asset assignments
           </p>
         </div>
-        <Button
-          className="cursor-pointer"
-          onClick={() => setIsCreateOpen(true)}
-        >
+        <Button className="cursor-pointer" onClick={() => setIsCreateOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Add User
         </Button>
@@ -189,7 +187,7 @@ export default function UsersPage() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={locationFilter} onValueChange={setLocationFilter}>
+       <Select value={locationFilter} onValueChange={setLocationFilter}>
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Location" />
           </SelectTrigger>
@@ -239,7 +237,7 @@ export default function UsersPage() {
                   colSpan={7}
                   className="py-12 text-center text-muted-foreground"
                 >
-                  Loading users...
+                  <Loading />
                 </TableCell>
               </TableRow>
             ) : users.length === 0 ? (
@@ -263,40 +261,32 @@ export default function UsersPage() {
               </TableRow>
             ) : (
               users.map((user) => (
-                <TableRow className="cursor-pointer" key={user._id}>
-                  <TableCell
-                    onClick={() => router.push(`/dashboard/users/${user._id}`)}
-                    className="font-medium text-foreground"
-                  >
+                <TableRow className='cursor-pointer' key={user._id}>
+                  <TableCell onClick={() =>
+                    router.push(`/dashboard/users/${user._id}`)
+                  } className="font-medium text-foreground">
                     {user.firstName} {user.lastName}
                   </TableCell>
-                  <TableCell
-                    onClick={() => router.push(`/dashboard/users/${user._id}`)}
-                    className="text-muted-foreground"
-                  >
+                  <TableCell onClick={() =>
+                    router.push(`/dashboard/users/${user._id}`)
+                  } className="text-muted-foreground">
                     {user.email}
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      onClick={() =>
-                        router.push(`/dashboard/users/${user._id}`)
-                      }
-                      variant="outline"
-                      className="text-xs"
-                    >
+                    <Badge onClick={() =>
+                    router.push(`/dashboard/users/${user._id}`)
+                  } variant="outline" className="text-xs">
                       {user.department}
                     </Badge>
                   </TableCell>
-                  <TableCell
-                    onClick={() => router.push(`/dashboard/users/${user._id}`)}
-                    className="text-muted-foreground"
-                  >
+                  <TableCell onClick={() =>
+                    router.push(`/dashboard/users/${user._id}`)
+                  } className="text-muted-foreground">
                     {user.position || "-"}
                   </TableCell>
-                  <TableCell
-                    className="cursor-pointer"
-                    onClick={() => router.push(`/dashboard/users/${user._id}`)}
-                  >
+                  <TableCell className='cursor-pointer' onClick={() =>
+                    router.push(`/dashboard/users/${user._id}`)
+                  }>
                     <Badge
                       variant={
                         user.status === "active" ? "default" : "secondary"
@@ -310,29 +300,22 @@ export default function UsersPage() {
                       {user.status}
                     </Badge>
                   </TableCell>
-                  <TableCell
-                    className="cursor-pointer"
-                    onClick={() => router.push(`/dashboard/users/${user._id}`)}
-                  >
-                    {user.assignedAssets && user.assignedAssets.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {user.assignedAssets.map((asset) => (
-                          <Badge
-                            key={asset._id}
-                            variant="outline"
-                            className="text-xs"
-                          >
-                            {asset.name}
-                          </Badge>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">
-                        No assets
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className='cursor-pointer' onClick={() =>
+                    router.push(`/dashboard/users/${user._id}`)
+                  }>
+  {user.assignedAssets && user.assignedAssets.length > 0 ? (
+    <div className="flex flex-wrap gap-1">
+      {user.assignedAssets.map((asset) => (
+        <Badge key={asset._id} variant="outline" className="text-xs">
+          {asset.name}
+        </Badge>
+      ))}
+    </div>
+  ) : (
+    <span className="text-muted-foreground text-sm">No assets</span>
+  )}
+</TableCell>
+<TableCell className="text-muted-foreground">
                     {user.location}
                   </TableCell>
                   <TableCell>
@@ -344,7 +327,9 @@ export default function UsersPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setEditingUser(user)}>
+                        <DropdownMenuItem
+                          onClick={() => setEditingUser(user)}
+                        >
                           <Pencil className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
@@ -390,7 +375,9 @@ export default function UsersPage() {
         <DialogContent className="sm:max-w-[520px]">
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
-            <DialogDescription>Update user information</DialogDescription>
+            <DialogDescription>
+              Update user information
+            </DialogDescription>
           </DialogHeader>
           <UserForm
             user={editingUser}
@@ -430,5 +417,5 @@ export default function UsersPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
+  )
 }

@@ -179,6 +179,32 @@ export async function createAsset(formData: z.infer<typeof assetSchema>) {
   }
 }
 
+
+export async function setAssetAvailable(assetId: string) {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { error: "Unauthorized" };
+
+  try {
+    const db = await getDb();
+
+    await db.collection("assets").updateOne(
+      { _id: new ObjectId(assetId) },
+      {
+        $set: {
+          status: "available",
+          assignedTo: null,       
+          updatedAt: new Date(),
+        },
+      },
+    );
+    console.log(`Asset ${assetId} set to available and unassigned`);
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update asset status:", error);
+    return { error: "Failed to set asset to available" };
+  }
+}
+
 export async function updateAsset(
   id: string,
   formData: z.infer<typeof assetSchema>,

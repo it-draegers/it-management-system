@@ -21,6 +21,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Loading from "@/components/ui/loading";
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -47,6 +48,7 @@ export default function TasksPage() {
   }, [loadTasks]);
 
   async function handleAddTask(e: React.FormEvent<HTMLFormElement>) {
+
     e.preventDefault();
     setError("");
     const trimmed = newTask.trim();
@@ -59,13 +61,16 @@ export default function TasksPage() {
     const result = await createTask(trimmed);
     setLoading(false);
 
+
     if ("error" in result && result.error) {
       setError(result.error);
       return;
     }
 
     setNewTask("");
+
     loadTasks();
+    console.log("Task added, reloading tasks...");
     router.refresh(); 
 
   }
@@ -158,7 +163,7 @@ export default function TasksPage() {
               />
               <Button
                 type="submit"
-                className=" transition delay-150 duration-100 ease-in-out hover:-translate-y-1 hover:scale-110  ..."
+                className=" cursor-pointer transition delay-150 duration-100 ease-in-out hover:-translate-y-1 hover:scale-110  ..."
                 disabled={loading}
               >
                 {loading ? (
@@ -180,8 +185,7 @@ export default function TasksPage() {
           <section className="flex-1 rounded-lg border border-border bg-muted/10 p-4">
             {pageLoading ? (
               <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Loading tasks...
+                <Loading />
               </div>
             ) : tasks.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-sm text-muted-foreground">
@@ -200,7 +204,7 @@ export default function TasksPage() {
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="mt-0.5"
+                        className=" cursor-pointer mt-0.5"
                         onClick={() => handleToggleCompleted(task)}
                       >
                         {task.completed ? (
@@ -260,6 +264,7 @@ export default function TasksPage() {
                       ) : (
                         <>
                           <Button
+                          className="cursor-pointer"
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -272,7 +277,7 @@ export default function TasksPage() {
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="text-destructive hover:text-destructive"
+                            className=" cursor-pointer text-destructive hover:text-destructive"
                             onClick={() => handleDeleteTask(task._id)}
                           >
                             <Trash2 className="h-4 w-4" />

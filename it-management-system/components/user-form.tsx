@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,8 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+
 import type { User } from "@/lib/actions/users";
+import { AssignUserDialog } from "./assign-user-dialogue";
+import { assignAsset, unassignAsset } from "@/lib/actions/assets";
 
 interface UserFormProps {
   user?: User | null;
@@ -45,12 +51,31 @@ const departments = [
   "Loss Prevention",
   "Sales",
 ];
+
 const locations = ["MP", "LA", "SSF", "Home/Remote"];
 
 export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
+  const router = useRouter();
+
   const [error, setError] = useState("");
   const [selected, setSelected] = useState(user?.department || "");
   const [custom, setCustom] = useState("");
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+
+  async function handleAssign(assetId: string): Promise<void> {
+    if (!user?._id) return; 
+
+    try {
+      await assignAsset(assetId, user._id);
+      router.refresh(); 
+    } catch (err) {
+      console.error(err);
+      setError("Failed to assign asset");
+    } finally {
+      setAssignDialogOpen(false);
+      router.push(`/dashboard/users/${user._id}`); 
+    }
+  }
 
   function handleSelect(val: string) {
     setSelected(val);
@@ -60,6 +85,7 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
   function handleCustom(val: string) {
     setCustom(val);
   }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
@@ -71,7 +97,7 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         lastName: formData.get("lastName") as string,
         email: formData.get("email") as string,
         location: formData.get("location") as string,
-        department: formData.get("department") as string,
+        department: (formData.get("department") as string) || "",
         position: (formData.get("position") as string) || "",
         phone: (formData.get("phone") as string) || "",
         status: (formData.get("status") as "active" | "inactive") || "active",
@@ -81,6 +107,8 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
     }
   }
 
+  const assignedAssets = user?.assignedAssets ?? [];
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {error && (
@@ -89,6 +117,7 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         </div>
       )}
 
+      {/* Name */}
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
           <Label htmlFor="firstName">First Name</Label>
@@ -112,6 +141,7 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         </div>
       </div>
 
+      {/* Email */}
       <div className="flex flex-col gap-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -124,13 +154,14 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         />
       </div>
 
+      {/* Department / Location / Position */}
       <div className="grid grid-cols-2 gap-4">
+        {/* Department */}
         <div className="flex flex-col gap-2">
           <Label htmlFor="department">Department</Label>
           <Select
-            name="department"
             onValueChange={handleSelect}
-            defaultValue={selected}
+            defaultValue={selected || undefined}
           >
             <SelectTrigger id="department">
               <SelectValue placeholder="Select department" />
@@ -144,13 +175,15 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
               <SelectItem value="Other">Other</SelectItem>
             </SelectContent>
           </Select>
-          {/* keep a hidden input so the department value is submitted with the form */}
+
+          {/* Single source of truth for department form value */}
           <input
             type="hidden"
             name="department"
             value={selected === "Other" ? custom : selected}
             readOnly
           />
+
           {selected === "Other" && (
             <Input
               placeholder="Enter department"
@@ -159,6 +192,8 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
             />
           )}
         </div>
+
+        {/* Location */}
         <div className="flex flex-col gap-2">
           <Label htmlFor="location">Location</Label>
           <Select name="location" defaultValue={user?.location || undefined}>
@@ -174,6 +209,8 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Position */}
         <div className="flex flex-col gap-2">
           <Label htmlFor="position">Position</Label>
           <Input
@@ -185,16 +222,65 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      {/* Phone */}
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="phone">Phone</Label>
+        <Input
+          id="phone"
+          name="phone"
+          defaultValue={user?.phone || ""}
+          placeholder="+1 (555) 000-0000"
+        />
+      </div>
+
+      {/* Assigned assets + Status */}
+      <div className="flex items-start justify-between gap-6">
+        {/* Assigned Assets area */}
         <div className="flex flex-col gap-2">
-          <Label htmlFor="phone">Phone</Label>
-          <Input
-            id="phone"
-            name="phone"
-            defaultValue={user?.phone || ""}
-            placeholder="+1 (555) 000-0000"
-          />
+          <Label>Assigned Assets</Label>
+
+          {assignedAssets.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {assignedAssets.map((asset) => (
+                <div
+                  key={asset._id}
+                  className="flex items-center gap-1 rounded-md border bg-muted px-2 py-1"
+                >
+                  <Badge variant="outline" className="text-xs">
+                    {asset.name}
+                  </Badge>
+                  <button
+                    type="button"
+                    className="text-red-500 hover:text-red-700"
+                    onClick={async () => {
+                      try {
+                        await unassignAsset(asset._id);
+                        router.refresh();
+                      } catch (err) {
+                        console.error(err);
+                        setError("Failed to unassign asset");
+                      }
+                    }}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No assets assigned</p>
+          )}
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setAssignDialogOpen(true)}
+          >
+            {assignedAssets.length > 0 ? "Assign / Reassign Asset" : "Assign Asset"}
+          </Button>
         </div>
+
+        {/* Status */}
         <div className="flex flex-col gap-2">
           <Label htmlFor="status">Status</Label>
           <Select name="status" defaultValue={user?.status || "active"}>
@@ -209,6 +295,17 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         </div>
       </div>
 
+      {/* Assign asset dialog (choose asset for this user) */}
+      {user && (
+        <AssignUserDialog
+          open={assignDialogOpen}
+          onOpenChange={setAssignDialogOpen}
+          userName={`${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()}
+          onAssign={handleAssign}
+        />
+      )}
+
+      {/* Footer buttons */}
       <div className="flex justify-end gap-3 pt-2">
         <Button
           className="cursor-pointer"
