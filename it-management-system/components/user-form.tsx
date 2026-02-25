@@ -182,7 +182,7 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
           <input
             type="hidden"
             name="department"
-            value={selected === "Other" ? custom : selected}
+            value={selected === "Other" ? custom : selected || ""}
             readOnly
           />
 

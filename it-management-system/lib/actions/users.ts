@@ -10,7 +10,7 @@ const userSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email address"),
-  department: z.string().min(1, "Department is required"),
+  department: z.string().optional().default(""),
   position: z.string().optional().default(""),
   phone: z.string().optional().default(""),
   status: z.enum(["active", "inactive"]).default("active"),
