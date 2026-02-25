@@ -108,7 +108,7 @@ export function UserAssetsCard({
         )}
 
         {/* Assign / Add asset button */}
-        <div className="mt-4 flex justify-start">
+        <div className="mt-4 flex justify-center gap-4">
           <Button
             variant="outline"
             size="sm"
