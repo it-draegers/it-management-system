@@ -73,6 +73,8 @@ const statusColors: Record<string, string> = {
   assigned: "border-primary/30 bg-primary/10 text-primary",
   maintenance: "border-warning/30 bg-warning/10 text-warning",
   retired: "border-destructive/30 bg-destructive/10 text-destructive",
+  GeneralUse: "border-primary/30 bg-primary/10 text-primary",
+
 };
 
 export default function AssetsPage() {
@@ -222,6 +224,8 @@ export default function AssetsPage() {
             <SelectItem value="available">Available</SelectItem>
             <SelectItem value="assigned">Assigned</SelectItem>
             <SelectItem value="retired">Retired</SelectItem>
+            <SelectItem value="maintenance">Maintenance</SelectItem>
+            <SelectItem value="GeneralUse">General Use</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -302,7 +306,7 @@ export default function AssetsPage() {
                       variant="outline"
                       className={statusColors[asset.status] || ""}
                     >
-                      {asset.status}
+                      { asset.status === "GeneralUse" ? "General Use" : asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">

@@ -35,7 +35,7 @@ interface AssetFormProps {
     location: "MP" | "LA" | "SSF" | "Home";
     model: string;
     serialNumber: string;
-    status: "available" | "assigned" | "maintenance" | "retired";
+    status: "available" | "assigned" | "maintenance" | "retired" | "GeneralUse";
     purchaseDate: string;
     notes: string;
     customProperties: { key: string; value: string }[];
@@ -69,7 +69,7 @@ export function AssetForm({
   >(asset?.customProperties || []);
 
   const [status, setStatus] = useState<
-    "available" | "assigned" | "maintenance" | "retired"
+    "available" | "assigned" | "maintenance" | "retired" | "GeneralUse"
   >(asset?.status || "available");
 
   // Dialog open state
@@ -232,7 +232,8 @@ export function AssetForm({
                   | "available"
                   | "assigned"
                   | "maintenance"
-                  | "retired";
+                  | "retired"
+                  | "GeneralUse";
                 setStatus(v);
                 if (v === "assigned") {
                   setAssignDialogOpen(true);
@@ -249,6 +250,7 @@ export function AssetForm({
                 <SelectItem value="assigned">Assigned</SelectItem>
                 <SelectItem value="maintenance">Maintenance</SelectItem>
                 <SelectItem value="retired">Retired</SelectItem>
+                <SelectItem value="GeneralUse">General Use</SelectItem>
               </SelectContent>
             </Select>
             {status === "assigned" && (

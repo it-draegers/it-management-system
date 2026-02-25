@@ -156,7 +156,10 @@ export default async function DashboardPage() {
                             ? "border-primary/30 bg-primary/10 text-primary"
                             : asset.status === "maintenance"
                               ? "border-warning/30 bg-warning/10 text-warning"
-                              : "border-destructive/30 bg-destructive/10 text-destructive"
+                              : asset.status === "GeneralUse"
+                                ? "border-primary/30 bg-primary/10 text-primary"
+                                : "border-destructive/30 bg-destructive/10 text-destructive"
+                              
                       }
                     >
                       {asset.status ?? "unknown"}

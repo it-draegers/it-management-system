@@ -26,7 +26,7 @@ const assetSchema = z.object({
   model: z.string().optional().default(""),
   serialNumber: z.string().optional().default(""),
   status: z
-    .enum(["available", "assigned", "maintenance", "retired"])
+    .enum(["available", "assigned", "maintenance", "retired" , "GeneralUse"])
     .default("available"),
   purchaseDate: z.string().optional().default(""),
   notes: z.string().optional().default(""),
@@ -42,7 +42,7 @@ export type Asset = {
   brand: string;
   model: string;
   serialNumber: string;
-  status: "available" | "assigned" | "maintenance" | "retired";
+  status: "available" | "assigned" | "maintenance" | "retired" | "GeneralUse";
   assignedTo: string | null;
   assignedToName?: string;
   purchaseDate: string;
@@ -299,6 +299,7 @@ export async function getStats() {
     db.collection("assets").countDocuments({ status: "assigned" }),
     db.collection("assets").countDocuments({ status: "available" }),
     db.collection("assets").countDocuments({ status: "maintenance" }),
+    db.collection("assets").countDocuments({ status: "GeneralUse" }),
   ]);
 
   // Recent users
@@ -324,6 +325,7 @@ export async function getStats() {
       assignedAssets,
       availableAssets,
       maintenanceAssets,
+      generalUseAssets: await db.collection("assets").countDocuments({ status: "GeneralUse" }),
       recentUsers: recentUsers.map((u) => ({
         ...u,
         _id: u._id.toString(),

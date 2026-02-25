@@ -38,6 +38,7 @@ const statusColors: Record<string, string> = {
   assigned: "border-primary/30 bg-primary/10 text-primary",
   maintenance: "border-warning/30 bg-warning/10 text-warning",
   retired: "border-destructive/30 bg-destructive/10 text-destructive",
+  GeneralUse: "border-primary/30 bg-primary/10 text-primary",
 };
 
 export default async function AssetDetailPage({
