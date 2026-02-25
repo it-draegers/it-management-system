@@ -238,7 +238,7 @@ export default function AssetsPage() {
               <TableHead className="text-muted-foreground">Name</TableHead>
               <TableHead className="text-muted-foreground">Type</TableHead>
               <TableHead className="text-muted-foreground">
-                Brand / Model
+                Notes
               </TableHead>
 
               <TableHead className="text-muted-foreground">Status</TableHead>
@@ -296,9 +296,8 @@ export default function AssetsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {asset.brand}
-                    {asset.model ? ` ${asset.model}` : ""}
-                    {!asset.brand && !asset.model ? "-" : ""}
+                    {asset.notes || "-"}
+                    
                   </TableCell>
 
                   <TableCell>
