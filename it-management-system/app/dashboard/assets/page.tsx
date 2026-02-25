@@ -310,13 +310,15 @@ export default function AssetsPage() {
                           asset.status.slice(1)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {asset.assignedToName || (
-                      <span className="text-muted-foreground/50">
-                        Unassigned
-                      </span>
-                    )}
-                  </TableCell>
+                  <TableCell className="text-foreground">
+  {asset.assignedToName ? (
+    asset.assignedToName
+  ) : asset.department ? (
+    <span className="text-foreground">{asset.department}</span>
+  ) : (
+    <span className="text-muted-foreground/50">Unassigned</span>
+  )}
+</TableCell>
                   <TableCell className="text-muted-foreground">
                     {asset.location || "-"}
                   </TableCell>

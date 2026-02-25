@@ -4,6 +4,7 @@ import { getDb } from "@/lib/mongodb";
 import { getCurrentAdmin } from "@/lib/auth";
 import { ObjectId } from "mongodb";
 import { z } from "zod";
+import { de } from "date-fns/locale";
 
 const customPropertySchema = z.object({
   key: z.string().min(1),
@@ -34,6 +35,7 @@ const assetSchema = z.object({
   notes: z.string().optional().default(""),
   customProperties: z.array(customPropertySchema).optional().default([]),
   assignedTo: z.string().nullable().optional().default(null),
+  department: z.string().optional().default(""),
 });
 
 export type Asset = {
@@ -52,6 +54,7 @@ export type Asset = {
   customProperties: { key: string; value: string }[];
   createdAt: string;
   updatedAt: string;
+  department: string;
 };
 
 export async function getAssets(params?: {
@@ -59,6 +62,7 @@ export async function getAssets(params?: {
   type?: string;
   status?: string;
   location?: string;
+  department?: string;
 }) {
   const admin = await getCurrentAdmin();
   if (!admin) return { error: "Unauthorized" };

@@ -18,6 +18,7 @@ import { Loader2, Plus, X } from "lucide-react";
 
 import type { Asset } from "@/lib/actions/assets";
 import { AssignAssetDialog } from "@/components/assign-asset-dialog";
+import { de } from "date-fns/locale";
 
 interface AssetFormProps {
   asset?: Asset | null;
@@ -41,11 +42,31 @@ interface AssetFormProps {
     notes: string;
     customProperties: { key: string; value: string }[];
     assignedTo: string | null;
+    department: Department | "";     
+
   }) => Promise<void>;
   onCancel?: () => void;
   loading?: boolean;
 }
 
+
+
+const departments = [
+  "Meat",
+  "Produce",
+  "Floral",
+  "Bakery",
+  "Managers",
+  "Grocery",
+  "Loss Prevention",
+  "HR",
+  "Accounting",
+  "IT",
+  "Payroll",
+  "Owners",
+] as const;
+
+type Department = (typeof departments)[number];
 const locations = ["MP", "LA", "SSF", "Home"] as const;
 
 const assetTypes = [
@@ -104,30 +125,34 @@ export function AssetForm({
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
 
-    const formData = new FormData(e.currentTarget);
-console.log("submitting status", status)
-    try {
-      await onSubmit({
-        name: formData.get("name") as string,
-        type: (formData.get("type") as any) || "Laptop",
-        brand: (formData.get("brand") as string) || "",
-        model: (formData.get("model") as string) || "",
-        serialNumber: (formData.get("serialNumber") as string) || "",
-        status,
-        purchaseDate: (formData.get("purchaseDate") as string) || "",
-        location:
-          (formData.get("location") as "MP" | "LA" | "SSF" | "Home") || "MP",
-        notes: (formData.get("notes") as string) || "",
-        customProperties: customProperties.filter((p) => p.key.trim()),
-        assignedTo: status === "assigned" ? assignedUserId : null,
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
-    }
+  const formData = new FormData(e.currentTarget);
+  console.log("submitting status", status);
+
+  try {
+    await onSubmit({
+      name: formData.get("name") as string,
+      type: (formData.get("type") as any) || "Laptop",
+      brand: (formData.get("brand") as string) || "",
+      model: (formData.get("model") as string) || "",
+      serialNumber: (formData.get("serialNumber") as string) || "",
+      status,
+      purchaseDate: (formData.get("purchaseDate") as string) || "",
+      location:
+        (formData.get("location") as "MP" | "LA" | "SSF" | "Home") || "MP",
+      notes: (formData.get("notes") as string) || "",
+      customProperties: customProperties.filter((p) => p.key.trim()),
+      assignedTo: status === "assigned" ? assignedUserId : null,
+department:
+  (formData.get("department") as string) === "none"
+    ? ""
+    : (formData.get("department") as string),    });
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Something went wrong");
   }
+}
 
  
   async function handleAssignUser(userId: string): Promise<void> {
@@ -263,6 +288,29 @@ console.log("submitting status", status)
             )}
           </div>
         </div>
+
+<div className="grid grid-cols-2 gap-4">
+  <div className="flex flex-col gap-2">
+    <Label htmlFor="department">Department</Label>
+    <Select
+      name="department"
+      defaultValue={(asset as any)?.department || ""}
+    >
+      <SelectTrigger id="department">
+        <SelectValue placeholder="Select department" />
+      </SelectTrigger>
+      <SelectContent>
+        {/* Explicit 'no department' option */}
+        <SelectItem value="none">No Department</SelectItem>
+        {departments.map((dept) => (
+          <SelectItem key={dept} value={dept}>
+            {dept}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+</div>
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="purchaseDate">Purchase Date</Label>
