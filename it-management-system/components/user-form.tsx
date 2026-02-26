@@ -64,17 +64,24 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
   async function handleAssign(assetId: string): Promise<void> {
-    if (!user?._id) return; 
+    // 🔴 Don't silently do nothing – show a helpful error
+    if (!user?._id) {
+      setError(
+        "Cannot assign asset because this user has no ID yet. Save the user first, then try again.",
+      );
+      return;
+    }
 
     try {
+      console.log("Assigning asset", assetId, "to user", user._id);
       await assignAsset(assetId, user._id);
-      router.refresh(); 
+      router.refresh();
     } catch (err) {
       console.error(err);
       setError("Failed to assign asset");
     } finally {
       setAssignDialogOpen(false);
-      router.push(`/dashboard/users/${user._id}`); 
+      router.push(`/dashboard/users/${user._id}`);
     }
   }
 
@@ -97,7 +104,7 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         firstName: formData.get("firstName") as string,
         lastName: formData.get("lastName") as string,
         email: formData.get("email") as string,
-        location: formData.get("location") as string,
+        location: (formData.get("location") as string) || "",
         department: (formData.get("department") as string) || "",
         position: (formData.get("position") as string) || "",
         phone: (formData.get("phone") as string) || "",
@@ -224,17 +231,15 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         </div>
       </div>
 
-              <div className="flex flex-col gap-2">
-          <Label htmlFor="employeeId">Employee ID</Label>
-          <Input
-            id="employeeId"
-            name="employeeId"
-            defaultValue={user?.employeeId || ""}
-            placeholder="Employee ID"
-          />
-        </div>
-      
-
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="employeeId">Employee ID</Label>
+        <Input
+          id="employeeId"
+          name="employeeId"
+          defaultValue={user?.employeeId || ""}
+          placeholder="Employee ID"
+        />
+      </div>
 
       {/* Phone */}
       <div className="flex flex-col gap-2">
@@ -249,50 +254,65 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
 
       {/* Assigned assets + Status */}
       <div className="flex items-start justify-between gap-6">
-        {/* Assigned Assets area */}
-        <div className="flex flex-col gap-2">
-          <Label>Assigned Assets</Label>
+        {/* Assigned Assets area – only meaningful if user exists */}
+        {user ? (
+          <div className="flex flex-col gap-2">
+            <Label>Assigned Assets</Label>
 
-          {assignedAssets.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {assignedAssets.map((asset) => (
-                <div
-                  key={asset._id}
-                  className="flex items-center gap-1 rounded-md border bg-muted px-2 py-1"
-                >
-                  <Badge variant="outline" className="text-xs">
-                    {asset.name}
-                  </Badge>
-                  <button
-                    type="button"
-                    className="text-red-500 hover:text-red-700"
-                    onClick={async () => {
-                      try {
-                        await unassignAsset(asset._id);
-                        router.refresh();
-                      } catch (err) {
-                        console.error(err);
-                        setError("Failed to unassign asset");
-                      }
-                    }}
+            {assignedAssets.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {assignedAssets.map((asset) => (
+                  <div
+                    key={asset._id}
+                    className="flex items-center gap-1 rounded-md border bg-muted px-2 py-1"
                   >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No assets assigned</p>
-          )}
+                    <Badge variant="outline" className="text-xs">
+                      {asset.name}
+                    </Badge>
+                    <button
+                      type="button"
+                      className="text-red-500 hover:text-red-700"
+                      onClick={async () => {
+                        try {
+                          await unassignAsset(asset._id);
+                          router.refresh();
+                        } catch (err) {
+                          console.error(err);
+                          setError("Failed to unassign asset");
+                        }
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No assets assigned
+              </p>
+            )}
 
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setAssignDialogOpen(true)}
-          >
-            {assignedAssets.length > 0 ? "Assign / Reassign Asset" : "Assign Asset"}
-          </Button>
-        </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-2 w-max cursor-pointer"
+              onClick={() => setAssignDialogOpen(true)}
+            >
+              {assignedAssets.length > 0
+                ? "Assign / Reassign Asset"
+                : "Assign Asset"}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+            <Label>Assigned Assets</Label>
+            <p>
+              Save the user first, then you&apos;ll be able to assign assets to
+              them.
+            </p>
+          </div>
+        )}
 
         {/* Status */}
         <div className="flex flex-col gap-2">
