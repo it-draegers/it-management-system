@@ -114,6 +114,12 @@ const KNOWN_PROGRAMS: Program[] = [
     logoUrl:
       "https://www.google.com/s2/favicons?sz=64&domain_url=adobe.com",
   },
+{
+    name: "Outlook",
+    vendor: "Microsoft",
+    logoUrl:
+      "https://www.google.com/s2/favicons?sz=64&domain_url=office.com",
+  },
 
   {
     name: "LogMeIn",
