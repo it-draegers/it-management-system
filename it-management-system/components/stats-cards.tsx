@@ -1,4 +1,7 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { link } from "fs"
 import { Users, HardDrive, Link2, CheckCircle2, Wrench } from "lucide-react"
 
 interface StatsCardsProps {
@@ -19,6 +22,7 @@ export function StatsCards({
       title: "Total Users",
       value: totalUsers,
       icon: Users,
+      link: "/dashboard/users",
       color: "text-primary",
       bg: "bg-primary/10",
     },
@@ -26,6 +30,7 @@ export function StatsCards({
       title: "Total Assets",
       value: totalAssets,
       icon: HardDrive,
+      link: "/dashboard/assets",
       color: "text-chart-2",
       bg: "bg-chart-2/10",
     },
@@ -33,6 +38,7 @@ export function StatsCards({
       title: "Assigned",
       value: assignedAssets,
       icon: Link2,
+      link: "/dashboard/assets?status=assigned",
       color: "text-chart-1",
       bg: "bg-chart-1/10",
     }
@@ -41,7 +47,7 @@ export function StatsCards({
   return (
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
       {stats.map((stat) => (
-        <Card key={stat.title} className="border-border">
+        <Card onClick={() => window.location.href = stat.link} key={stat.title} className="border-border cursor-pointer">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-medium text-muted-foreground">
               {stat.title}

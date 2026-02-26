@@ -340,9 +340,12 @@ export default function UsersPage() {
                             variant="outline"
                             className="text-xs"
                           >
-                            <button onClick={() => router.push(`/dashboard/assets/${asset._id}`)} className="text-blue-500 hover:underline cursor-pointer">
+<div>
+                            <button onClick={(e) => { e.stopPropagation(); router.push(`/dashboard/assets/${asset._id}`); }} className="text-blue-500 hover:underline cursor-pointer">
+                              
                               {asset.name}
                             </button>
+                            </div>
                           </Badge>
                         ))}
                       </div>

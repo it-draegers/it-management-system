@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import {
   getAssets,
   createAsset,
@@ -80,6 +80,9 @@ const statusColors: Record<string, string> = {
 
 export default function AssetsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [assets, setAssets] = useState<Asset[]>([]);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -94,6 +97,21 @@ export default function AssetsPage() {
   const [deptFilter, setDeptFilter] = useState("all");
   const [departments, setDepartments] = useState<string[]>([]);
 
+  
+  useEffect(() => {
+    const status = searchParams.get("status");
+    const department = searchParams.get("department");
+    const location = searchParams.get("location");
+    const type = searchParams.get("type");
+    const q = searchParams.get("q"); 
+
+    if (status) setStatusFilter(status);
+    if (department) setDeptFilter(department);
+    if (location) setLocationFilter(location);
+    if (type) setTypeFilter(type);
+    if (q) setSearch(q);
+  }, []);
+
   const loadAssets = useCallback(async () => {
     const result = await getAssets({
       search: search || undefined,
@@ -107,6 +125,7 @@ export default function AssetsPage() {
     }
     setPageLoading(false);
   }, [search, typeFilter, statusFilter, locationFilter, deptFilter]);
+
   const loadDepartments = useCallback(async () => {
     const result = await getDepartments();
     if ("departments" in result) {
@@ -128,6 +147,29 @@ export default function AssetsPage() {
     }, 300);
     return () => clearTimeout(timeout);
   }, [search, loadAssets]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (statusFilter !== "all") params.set("status", statusFilter);
+    if (deptFilter !== "all") params.set("department", deptFilter);
+    if (locationFilter !== "all") params.set("location", locationFilter);
+    if (typeFilter !== "all") params.set("type", typeFilter);
+    if (search) params.set("q", search);
+
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, {
+      scroll: false,
+    });
+  }, [
+    statusFilter,
+    deptFilter,
+    locationFilter,
+    typeFilter,
+    search,
+    pathname,
+    router,
+  ]);
 
   async function handleCreate(data: Parameters<typeof createAsset>[0]) {
     setLoading(true);
@@ -192,7 +234,6 @@ export default function AssetsPage() {
         </Button>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -203,6 +244,7 @@ export default function AssetsPage() {
             className="pl-9"
           />
         </div>
+
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="Type" />
@@ -217,7 +259,6 @@ export default function AssetsPage() {
             <SelectItem value="Printer">Printer</SelectItem>
             <SelectItem value="Tablet">Tablet</SelectItem>
             <SelectItem value="Server">Server</SelectItem>
-
             <SelectItem value="Other">Other</SelectItem>
           </SelectContent>
         </Select>
@@ -272,7 +313,6 @@ export default function AssetsPage() {
               <TableHead className="text-muted-foreground">Name</TableHead>
               <TableHead className="text-muted-foreground">Type</TableHead>
               <TableHead className="text-muted-foreground">Notes</TableHead>
-
               <TableHead className="text-muted-foreground">Status</TableHead>
               <TableHead className="text-muted-foreground">
                 User assigned / Department
@@ -320,9 +360,7 @@ export default function AssetsPage() {
                   onClick={() => router.push(`/dashboard/assets/${asset._id}`)}
                 >
                   <TableCell className="font-medium text-foreground">
-                   <Computer className="mr-2 inline h-4 w-4 text-muted-foreground" />
-                   
-                   
+                    <Computer className="mr-2 inline h-4 w-4 text-muted-foreground" />
                     {asset.name}
                   </TableCell>
                   <TableCell>
@@ -348,7 +386,10 @@ export default function AssetsPage() {
                   <TableCell className="text-foreground">
                     {asset.assignedToName ? (
                       <button
-                        onClick={() => router.push(`/dashboard/users/${asset.assignedTo}`)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/dashboard/users/${asset.assignedTo}`);
+                        }}
                         className="text-blue-500 hover:underline cursor-pointer"
                       >
                         {asset.assignedToName}
@@ -439,7 +480,6 @@ export default function AssetsPage() {
         </Table>
       </div>
 
-      {/* Create Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[560px]">
           <DialogHeader>
@@ -456,7 +496,6 @@ export default function AssetsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Dialog */}
       <Dialog
         open={!!editingAsset}
         onOpenChange={(open) => !open && setEditingAsset(null)}
@@ -475,7 +514,6 @@ export default function AssetsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Assign Dialog */}
       {assigningAsset && (
         <AssignAssetDialog
           open={!!assigningAsset}
@@ -485,7 +523,6 @@ export default function AssetsPage() {
         />
       )}
 
-      {/* Delete Confirmation */}
       <AlertDialog
         open={!!deletingAsset}
         onOpenChange={(open) => !open && setDeletingAsset(null)}
