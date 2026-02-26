@@ -11,7 +11,7 @@ import {
 } from "@/lib/actions/users";
 
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion"; 
+import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -113,7 +113,7 @@ export default function UsersPage() {
     loadDepartments();
   }, [loadDepartments]);
 
-    useEffect(() => {
+  useEffect(() => {
     const id = setInterval(() => {
       loadUsers();
     }, 10000);
@@ -164,18 +164,8 @@ export default function UsersPage() {
   }
 
   return (
-    <motion.div
-      className="flex flex-col gap-6"
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
-    >
-      <motion.div
-        className="flex items-center justify-between"
-        initial={{ opacity: 0, y: -6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, delay: 0.05 }}
-      >
+    <motion.div className="flex flex-col gap-6">
+      <motion.div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground flex items-center">
             <Users className="mr-2 inline h-5 w-5 text-muted-foreground" />
@@ -207,12 +197,7 @@ export default function UsersPage() {
       </motion.div>
 
       {/* Filters */}
-      <motion.div
-        className="flex flex-col gap-3 sm:flex-row sm:items-center"
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.2, delay: 0.1 }}
-      >
+      <motion.div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -300,12 +285,7 @@ export default function UsersPage() {
                   colSpan={7}
                   className="py-12 text-center text-muted-foreground"
                 >
-                  <motion.div
-                    className="flex flex-col items-center gap-2"
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.2 }}
-                  >
+                  <motion.div className="flex flex-col items-center gap-2">
                     <Users className="h-8 w-8 text-muted-foreground/50" />
                     <p>No users found</p>
                     <Button
@@ -325,15 +305,8 @@ export default function UsersPage() {
                     key={user._id}
                     className="cursor-pointer"
                     onClick={() => router.push(`/dashboard/users/${user._id}`)}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    transition={{
-                      duration: 0.18,
-                      delay: index * 0.015,
-                    }}
                     whileHover={{
-                      backgroundColor: "rgba(148, 163, 184, 0.08)", 
+                      backgroundColor: "rgba(148, 163, 184, 0.08)",
                     }}
                   >
                     <TableCell className="font-medium text-foreground">
@@ -396,9 +369,7 @@ export default function UsersPage() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  router.push(
-                                    `/dashboard/assets/${asset._id}`,
-                                  );
+                                  router.push(`/dashboard/assets/${asset._id}`);
                                 }}
                                 className="text-blue-500 hover:underline cursor-pointer"
                               >

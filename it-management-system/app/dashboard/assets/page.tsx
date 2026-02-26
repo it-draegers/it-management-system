@@ -13,7 +13,7 @@ import {
   getDepartments,
 } from "@/lib/actions/assets";
 
-import { motion, AnimatePresence } from "framer-motion"; 
+import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -174,7 +174,7 @@ export default function AssetsPage() {
     pathname,
     router,
   ]);
-useEffect(() => {
+  useEffect(() => {
     const id = setInterval(() => {
       loadAssets();
     }, 10000);
@@ -403,15 +403,8 @@ useEffect(() => {
                     onClick={() =>
                       router.push(`/dashboard/assets/${asset._id}`)
                     }
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    transition={{
-                      duration: 0.18,
-                      delay: index * 0.015,
-                    }}
                     whileHover={{
-                      backgroundColor: "rgba(148, 163, 184, 0.08)", 
+                      backgroundColor: "rgba(148, 163, 184, 0.08)",
                     }}
                   >
                     <TableCell className="font-medium text-foreground">
@@ -469,7 +462,11 @@ useEffect(() => {
                     >
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                             <span className="sr-only">Open menu</span>
                           </Button>
