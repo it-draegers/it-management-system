@@ -27,7 +27,7 @@ export type User = {
   location: string
   position: string
   phone: string
-  emplpoyeeId?: string
+  employeeId?: string
   status: "active" | "inactive"
   assignedAssetsCount?: number
   assignedAssets?: { _id: string; name: string }[]

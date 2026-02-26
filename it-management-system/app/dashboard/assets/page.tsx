@@ -66,6 +66,7 @@ import {
   Link2,
   Unlink,
   Eye,
+  Computer,
 } from "lucide-react";
 import Loading from "@/components/ui/loading";
 
@@ -92,9 +93,6 @@ export default function AssetsPage() {
   const [pageLoading, setPageLoading] = useState(true);
   const [deptFilter, setDeptFilter] = useState("all");
   const [departments, setDepartments] = useState<string[]>([]);
-
-
-
 
   const loadAssets = useCallback(async () => {
     const result = await getAssets({
@@ -177,7 +175,10 @@ export default function AssetsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Assets</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            <Computer className="mr-2 inline h-5 w-5 text-muted-foreground" />
+            Assets
+          </h1>
           <p className="text-sm text-muted-foreground">
             Manage IT equipment and computer inventory
           </p>
@@ -221,7 +222,7 @@ export default function AssetsPage() {
           </SelectContent>
         </Select>
 
-      <Select value={deptFilter} onValueChange={setDeptFilter}>
+        <Select value={deptFilter} onValueChange={setDeptFilter}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Department" />
           </SelectTrigger>
@@ -234,8 +235,6 @@ export default function AssetsPage() {
             ))}
           </SelectContent>
         </Select>
-
-
 
         <Select value={locationFilter} onValueChange={setLocationFilter}>
           <SelectTrigger className="w-[160px]">
@@ -321,6 +320,9 @@ export default function AssetsPage() {
                   onClick={() => router.push(`/dashboard/assets/${asset._id}`)}
                 >
                   <TableCell className="font-medium text-foreground">
+                   <Computer className="mr-2 inline h-4 w-4 text-muted-foreground" />
+                   
+                   
                     {asset.name}
                   </TableCell>
                   <TableCell>
@@ -344,14 +346,23 @@ export default function AssetsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-foreground">
-  {asset.assignedToName ? (
-    asset.assignedToName
-  ) : asset.department ? (
-    <span className="text-foreground">{asset.department}</span>
-  ) : (
-    <span className="text-muted-foreground/50">Unassigned</span>
-  )}
-</TableCell>
+                    {asset.assignedToName ? (
+                      <button
+                        onClick={() => router.push(`/dashboard/users/${asset.assignedTo}`)}
+                        className="text-blue-500 hover:underline cursor-pointer"
+                      >
+                        {asset.assignedToName}
+                      </button>
+                    ) : asset.department ? (
+                      <span className="text-foreground">
+                        {asset.department}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground/50">
+                        Unassigned
+                      </span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-muted-foreground">
                     {asset.location || "-"}
                   </TableCell>

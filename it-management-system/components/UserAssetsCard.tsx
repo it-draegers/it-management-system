@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { HardDrive, Unlink } from "lucide-react";
+import { Computer, HardDrive, Unlink } from "lucide-react";
 
 import {
   Card,
@@ -17,10 +17,28 @@ import { Badge } from "@/components/ui/badge";
 import { AssignUserDialog } from "@/components/assign-user-dialogue";
 import { assignAsset, setAssetAvailable } from "@/lib/actions/assets";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription as DialogBodyDescription,
+  DialogHeader as DialogBodyHeader,
+  DialogTitle as DialogBodyTitle,
+} from "@/components/ui/dialog";
+
 interface UserAssetsCardProps {
   userId: string;
   userName: string;
-  // Assets currently assigned to this user
   assignedAssets: {
     _id: string;
     name: string;
@@ -41,7 +59,13 @@ export function UserAssetsCard({
   const router = useRouter();
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
-  // Assign selected assetId to this user
+  const [chooseUnassignOpen, setChooseUnassignOpen] = useState(false);
+  const [confirmUnassignOpen, setConfirmUnassignOpen] = useState(false);
+  const [assetToUnassign, setAssetToUnassign] = useState<{
+    _id: string;
+    name: string;
+  } | null>(null);
+
   async function handleAssign(assetId: string): Promise<void> {
     try {
       await assignAsset(assetId, userId);
@@ -53,13 +77,24 @@ export function UserAssetsCard({
     }
   }
 
-  // Unassign a specific asset (set to available)
   async function handleUnassign(assetId: string): Promise<void> {
     try {
       await setAssetAvailable(assetId);
       router.refresh();
     } catch (err) {
       console.error(err);
+    }
+  }
+
+  function handleUnassignClick() {
+    if (assignedAssets.length === 0) return;
+
+    if (assignedAssets.length === 1) {
+      const [onlyAsset] = assignedAssets;
+      setAssetToUnassign({ _id: onlyAsset._id, name: onlyAsset.name });
+      setConfirmUnassignOpen(true);
+    } else {
+      setChooseUnassignOpen(true);
     }
   }
 
@@ -78,23 +113,24 @@ export function UserAssetsCard({
       </CardHeader>
 
       <CardContent>
-        {/* Assigned assets list */}
         {assignedAssets && assignedAssets.length > 0 ? (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 ">
             {assignedAssets.map((asset) => (
               <div
                 key={asset._id}
                 className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
               >
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-sm">
+                    <button onClick={() => router.push(`/dashboard/assets/${asset._id}`)} className="text-blue-500 hover:underline cursor-pointer size-xl">
+                    <Computer className="mr-2 inline h-4 w-4 text-muted-foreground" />
                     {asset.name}
+                    </button>
                   </Badge>
                   <span className="text-xs text-muted-foreground">
                     {asset.type ?? ""} {asset.brand ? `• ${asset.brand}` : ""}
                   </span>
                 </div>
-               
               </div>
             ))}
           </div>
@@ -107,7 +143,6 @@ export function UserAssetsCard({
           </div>
         )}
 
-        {/* Assign / Add asset button */}
         <div className="mt-4 flex justify-center gap-4">
           <Button
             variant="outline"
@@ -115,15 +150,23 @@ export function UserAssetsCard({
             type="button"
             onClick={() => setAssignDialogOpen(true)}
           >
-            {assignedAssets.length > 0 ? "Assign / Reassign Asset" : "Assign Asset"}
+            {assignedAssets.length > 0
+              ? "Assign / Reassign Asset"
+              : "Assign Asset"}
           </Button>
-          <Button className='cursor-pointer' variant="destructive" size="sm" onClick={() => handleUnassign(assignedAssets[0]._id)} disabled={assignedAssets.length === 0}>
+
+          <Button
+            className="cursor-pointer"
+            variant="destructive"
+            size="sm"
+            onClick={handleUnassignClick}
+            disabled={assignedAssets.length === 0}
+          >
             <Unlink className="mr-2 h-4 w-4" />
             Unassign
-        </Button>
+          </Button>
         </div>
 
-        {/* Dialog to choose an asset for this user */}
         <AssignUserDialog
           open={assignDialogOpen}
           onOpenChange={setAssignDialogOpen}
@@ -131,7 +174,89 @@ export function UserAssetsCard({
           onAssign={handleAssign}
         />
 
-        {/* Meta info */}
+        <Dialog
+          open={chooseUnassignOpen}
+          onOpenChange={(open) => {
+            setChooseUnassignOpen(open);
+            if (!open) {
+              setAssetToUnassign(null);
+            }
+          }}
+        >
+          <DialogContent>
+            <DialogBodyHeader>
+              <DialogBodyTitle>Choose asset to unassign</DialogBodyTitle>
+              <DialogBodyDescription>
+                Select which asset you want to unassign from {userName}.
+              </DialogBodyDescription>
+            </DialogBodyHeader>
+
+            <div className="mt-2 flex flex-col gap-2">
+              {assignedAssets.map((asset) => (
+                <Button
+                  key={asset._id}
+                  type="button"
+                  variant="outline"
+                  className="flex w-full items-center justify-between"
+                  onClick={() => {
+                    setAssetToUnassign({ _id: asset._id, name: asset.name });
+                    setChooseUnassignOpen(false);
+                    setConfirmUnassignOpen(true);
+                  }}
+                >
+                  <span className="text-sm font-medium">{asset.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {asset.type ?? ""} {asset.brand ? `• ${asset.brand}` : ""}
+                  </span>
+                </Button>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <AlertDialog
+          open={confirmUnassignOpen}
+          onOpenChange={(open) => {
+            setConfirmUnassignOpen(open);
+            if (!open) {
+              setAssetToUnassign(null);
+            }
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Unassign asset</AlertDialogTitle>
+              <AlertDialogDescription>
+                {assetToUnassign ? (
+                  <>
+                    Are you sure you want to unassign{" "}
+                    <span className="font-medium text-foreground">
+                      {assetToUnassign.name}
+                    </span>{" "}
+                    from {userName}? The asset will be set to available.
+                  </>
+                ) : (
+                  "Are you sure you want to unassign this asset?"
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-white hover:bg-destructive/90 focus:ring-destructive"
+                onClick={async () => {
+                  if (!assetToUnassign) return;
+                  await handleUnassign(assetToUnassign._id);
+                  setConfirmUnassignOpen(false);
+                  setAssetToUnassign(null);
+                }}
+              >
+                Unassign
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
         <div className="mt-6">
           <p className="text-xs text-muted-foreground">
             Created:{" "}

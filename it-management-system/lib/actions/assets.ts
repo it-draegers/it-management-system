@@ -183,21 +183,26 @@ export async function createAsset(formData: z.infer<typeof assetSchema>) {
     const validated = assetSchema.parse(formData);
     const db = await getDb();
 
+    const existingAsset = await db
+      .collection("assets")
+      .findOne({ name: validated.name });
+
+    if (existingAsset) {
+      return { error: `Asset "${validated.name}" already exists` };
+    }
+
     const hasAssignee = !!validated.assignedTo;
 
     let finalStatus: Asset["status"];
-
     if (hasAssignee) {
-     
       finalStatus = "assigned";
     } else {
-      
       finalStatus = validated.status;
     }
 
     await db.collection("assets").insertOne({
       ...validated,
-      status: finalStatus,          
+      status: finalStatus,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -207,6 +212,7 @@ export async function createAsset(formData: z.infer<typeof assetSchema>) {
     if (error instanceof z.ZodError) {
       return { error: error.errors[0].message };
     }
+
     console.error("Failed to create asset:", error);
     return { error: "Failed to create asset" };
   }

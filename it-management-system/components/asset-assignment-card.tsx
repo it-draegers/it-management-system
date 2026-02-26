@@ -62,9 +62,9 @@ export function AssetAssignmentCard({
       </CardHeader>
       <CardContent>
         {assignedTo ? (
-          <div className="flex items-center gap-4 rounded-lg border border-border p-4">
+          <div onClick={() => router.push(`/dashboard/users/${assignedTo}`)} className="transition duration-50 ease-in-out hover:bg-secondary/50 cursor-pointer rounded-md p-2 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <User className="h-5 w-5 text-primary" />
+              <User className="transition duration-150 ease-in-out h-5 w-5 text-primary" />
             </div>
             <div>
               <p className="text-sm font-medium text-foreground">

@@ -30,6 +30,7 @@ import {
   FileText,
   MapPin,
   Pencil,
+  Building,
 } from "lucide-react";
 import { AssetAssignmentCard } from "@/components/asset-assignment-card";
 import { DeleteAssetButton } from "@/components/ui/DeleteAssetButton";
@@ -148,6 +149,17 @@ export default async function AssetDetailPage({
                   <p className="text-xs text-muted-foreground">Purchase Date</p>
                   <p className="text-sm font-medium text-foreground">
                     {asset.purchaseDate || "-"}
+                  </p>
+                </div>
+              </div>
+
+              <Separator />
+              <div className="flex items-center gap-3">
+                <Building className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Department</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {asset.department || "-"}
                   </p>
                 </div>
               </div>

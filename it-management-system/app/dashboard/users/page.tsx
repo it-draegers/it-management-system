@@ -60,6 +60,7 @@ import {
   Users,
   HardDrive,
   Link,
+  User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/ui/loading";
@@ -156,7 +157,10 @@ export default function UsersPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Users</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            <Users className="mr-2 inline h-5 w-5 text-muted-foreground" />
+            Users
+          </h1>
           <p className="text-sm text-muted-foreground">
             Manage employees and their asset assignments
           </p>
@@ -280,6 +284,8 @@ export default function UsersPage() {
                     onClick={() => router.push(`/dashboard/users/${user._id}`)}
                     className="font-medium text-foreground"
                   >
+                    <User className="mr-2 inline h-4 w-4 text-muted-foreground" />
+                    
                     {user.firstName} {user.lastName}
                   </TableCell>
                   <TableCell
@@ -334,7 +340,9 @@ export default function UsersPage() {
                             variant="outline"
                             className="text-xs"
                           >
-                            {asset.name}
+                            <button onClick={() => router.push(`/dashboard/assets/${asset._id}`)} className="text-blue-500 hover:underline cursor-pointer">
+                              {asset.name}
+                            </button>
                           </Badge>
                         ))}
                       </div>
