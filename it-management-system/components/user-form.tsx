@@ -45,6 +45,8 @@ const departments = [
   "HR",
   "Accounting",
   "Owners",
+  "Floral",
+  "Produce",
   "IT",
   "Bakery",
   "Housewares",
