@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Plus, X, MonitorSmartphone, Disc3, Search } from "lucide-react";
 import { redirect } from "next/dist/server/api-utils";
+import { set } from "date-fns";
 
 export type Program = {
   _id?: string;
@@ -26,22 +27,16 @@ interface ProgramsCardProps {
   onRemoveProgram?: (assetId: string, programId: string) => Promise<void>;
 }
 
-function handleRefresh() {
-  window.location.reload();
-}
-
 const KNOWN_PROGRAMS: Program[] = [
   {
     name: "Google Chrome",
     vendor: "Google",
-    logoUrl:
-      "https://www.google.com/s2/favicons?sz=64&domain_url=google.com",
+    logoUrl: "https://www.google.com/s2/favicons?sz=64&domain_url=google.com",
   },
   {
     name: "Mozilla Firefox",
     vendor: "Mozilla",
-    logoUrl:
-      "https://www.google.com/s2/favicons?sz=64&domain_url=mozilla.org",
+    logoUrl: "https://www.google.com/s2/favicons?sz=64&domain_url=mozilla.org",
   },
   {
     name: "Microsoft Edge",
@@ -53,14 +48,12 @@ const KNOWN_PROGRAMS: Program[] = [
   {
     name: "Zoom",
     vendor: "Zoom",
-    logoUrl:
-      "https://www.google.com/s2/favicons?sz=64&domain_url=zoom.us",
+    logoUrl: "https://www.google.com/s2/favicons?sz=64&domain_url=zoom.us",
   },
   {
     name: "Slack",
     vendor: "Slack",
-    logoUrl:
-      "https://www.google.com/s2/favicons?sz=64&domain_url=slack.com",
+    logoUrl: "https://www.google.com/s2/favicons?sz=64&domain_url=slack.com",
   },
   {
     name: "Microsoft Teams",
@@ -79,53 +72,45 @@ const KNOWN_PROGRAMS: Program[] = [
   {
     name: "Microsoft Office",
     vendor: "Microsoft",
-    logoUrl:
-      "https://www.google.com/s2/favicons?sz=64&domain_url=office.com",
+    logoUrl: "https://www.google.com/s2/favicons?sz=64&domain_url=office.com",
   },
 
   {
     name: "QuickBooks",
     vendor: "Intuit",
-    logoUrl:
-      "https://www.google.com/s2/favicons?sz=64&domain_url=intuit.com",
+    logoUrl: "https://www.google.com/s2/favicons?sz=64&domain_url=intuit.com",
   },
 
   {
     name: "Foxit Reader",
     vendor: "Foxit",
-    logoUrl:
-      "https://www.google.com/s2/favicons?sz=64&domain_url=foxit.com",
+    logoUrl: "https://www.google.com/s2/favicons?sz=64&domain_url=foxit.com",
   },
   {
     name: "Foxit PhantomPDF",
     vendor: "Foxit",
-    logoUrl:
-      "https://www.google.com/s2/favicons?sz=64&domain_url=foxit.com",
+    logoUrl: "https://www.google.com/s2/favicons?sz=64&domain_url=foxit.com",
   },
   {
     name: "Adobe Acrobat Reader",
     vendor: "Adobe",
-    logoUrl:
-      "https://www.google.com/s2/favicons?sz=64&domain_url=adobe.com",
+    logoUrl: "https://www.google.com/s2/favicons?sz=64&domain_url=adobe.com",
   },
   {
     name: "Adobe Acrobat Pro",
     vendor: "Adobe",
-    logoUrl:
-      "https://www.google.com/s2/favicons?sz=64&domain_url=adobe.com",
+    logoUrl: "https://www.google.com/s2/favicons?sz=64&domain_url=adobe.com",
   },
-{
+  {
     name: "Outlook",
     vendor: "Microsoft",
-    logoUrl:
-      "https://www.google.com/s2/favicons?sz=64&domain_url=office.com",
+    logoUrl: "https://www.google.com/s2/favicons?sz=64&domain_url=office.com",
   },
 
   {
     name: "LogMeIn",
     vendor: "LogMeIn",
-    logoUrl:
-      "https://www.google.com/s2/favicons?sz=64&domain_url=logmein.com",
+    logoUrl: "https://www.google.com/s2/favicons?sz=64&domain_url=logmein.com",
   },
 ];
 
@@ -144,10 +129,15 @@ export function ProgramsCard({
   const [selectedLogoUrl, setSelectedLogoUrl] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const [suggestionsList, setSuggestionsList] = useState(false);
+  const [appList, setAppList] = useState(false);
   useEffect(() => {
     setProgramList(programs);
+    console.log(apps);
   }, [programs]);
+  const apps = useMemo(() => {
+    return KNOWN_PROGRAMS.map((p) => p);
+  }, [name]);
 
   const suggestions = useMemo(() => {
     const query = name.trim().toLowerCase();
@@ -159,6 +149,7 @@ export function ProgramsCard({
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
+    setSuggestionsList(true);
     if (!name.trim()) {
       setError("Program name is required");
       return;
@@ -170,7 +161,7 @@ export function ProgramsCard({
       name: name.trim(),
       version: version.trim() || undefined,
       vendor: vendor.trim() || undefined,
-      logoUrl: selectedLogoUrl, 
+      logoUrl: selectedLogoUrl,
     };
 
     try {
@@ -187,10 +178,21 @@ export function ProgramsCard({
       setIsAdding(false);
     } catch (err) {
       console.error(err);
+
       setError("Failed to add program");
+      console.log(error);
     } finally {
       setLoading(false);
     }
+  }
+  function handleRefresh() {
+    if (!name.trim()) {
+      return;
+    }
+    console.log(error);
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   }
 
   async function handleRemove(programId?: string) {
@@ -207,10 +209,20 @@ export function ProgramsCard({
     setName(s.name);
     setVendor(s.vendor ?? "");
     setSelectedLogoUrl(s.logoUrl);
+    setSuggestionsList(false);
+  }
+
+  function handleSelectApp(s: Program) {
+    setName(s.name);
+    setVendor(s.vendor ?? "");
+    setSelectedLogoUrl(s.logoUrl);
+    setSuggestionsList(false);
+    setAppList(false);
   }
 
   function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
+    setSuggestionsList(true);
     setName(value);
     setError("");
 
@@ -277,10 +289,14 @@ export function ProgramsCard({
                       onChange={handleNameChange}
                       autoFocus
                       className="pl-7"
+                      onClick={() => {
+                        setAppList(true);
+                        console.log(apps);
+                      }}
                     />
                     {/* Suggestions dropdown */}
                     <AnimatePresence>
-                      {suggestions.length > 0 && (
+                      {suggestionsList ? (
                         <motion.ul
                           initial={{ opacity: 0, y: 4 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -323,6 +339,57 @@ export function ProgramsCard({
                             &quot;Add Program&quot;.
                           </li>
                         </motion.ul>
+                      ) : (
+                        appList && (
+                          <motion.ul
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 4 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-md border border-border bg-popover text-sm shadow-lg"
+                          >
+                            {apps.map((app) => (
+                              <li
+                                key={app.name}
+                                className="flex cursor-pointer items-center gap-2 px-2 py-1.5 hover:bg-muted"
+                                onClick={() => {
+                                  setName(app.name);
+                                  setSuggestionsList(false);
+                                  setAppList(false);
+                                  setVendor(app.vendor ?? "");
+                                  setSelectedLogoUrl(app.logoUrl);
+                                }}
+                              >
+                                <div className="relative h-5 w-5 overflow-hidden rounded bg-muted flex items-center justify-center">
+                                  {app.logoUrl ? (
+                                    <Image
+                                      src={app.logoUrl}
+                                      alt={app.name}
+                                      fill
+                                      className="object-contain p-0.5"
+                                    />
+                                  ) : (
+                                    <Disc3 className="h-3.5 w-3.5 text-muted-foreground" />
+                                  )}
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="text-xs font-medium text-foreground">
+                                    {app.name}
+                                  </span>
+                                  {app.vendor && (
+                                    <span className="text-[10px] text-muted-foreground">
+                                      {app.vendor}
+                                    </span>
+                                  )}
+                                </div>
+                              </li>
+                            ))}
+                            <li className="border-t border-border px-2 py-1.5 text-[10px] text-muted-foreground">
+                              You can also type a custom program name and click
+                              &quot;Add Program&quot;.
+                            </li>
+                          </motion.ul>
+                        )
                       )}
                     </AnimatePresence>
                   </div>

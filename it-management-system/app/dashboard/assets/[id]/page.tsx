@@ -74,6 +74,8 @@ export default async function AssetDetailPage({
     "programs" in programsResult && Array.isArray(programsResult.programs)
       ? (programsResult.programs as Program[])
       : [];
+
+      
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}

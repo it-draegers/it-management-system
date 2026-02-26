@@ -113,6 +113,13 @@ export default function UsersPage() {
     loadDepartments();
   }, [loadDepartments]);
 
+    useEffect(() => {
+    const id = setInterval(() => {
+      loadUsers();
+    }, 10000);
+    return () => clearInterval(id);
+  }, [loadUsers]);
+
   useEffect(() => {
     const timeout = setTimeout(() => {
       loadUsers();

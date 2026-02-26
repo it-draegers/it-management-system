@@ -40,13 +40,11 @@ export async function getAssetWithPrograms(assetId: string) {
   return { success: true, programs };
 }
 function guessLogoUrl(program: Program) {
-  // 1. Vendor-based Clearbit logo
   if (program.vendor) {
     const domain = program.vendor.toLowerCase().replace(/\s+/g, "") + ".com";
     return `https://logo.clearbit.com/${domain}`;
   }
 
-  // 2. Program name -> iconify
   const slug = program.name.toLowerCase().replace(/\s+/g, "-");
 
   return `https://api.iconify.design/logos/${slug}.svg`;

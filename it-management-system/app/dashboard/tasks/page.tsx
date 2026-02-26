@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, use } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -127,6 +127,13 @@ export default function TasksPage() {
     }
     loadTasks();
   }
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      loadTasks();
+    }, 10000);
+    return () => clearInterval(id);
+  }, [loadTasks]);
 
   return (
     <div className="flex flex-col gap-6">

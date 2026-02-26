@@ -174,7 +174,12 @@ export default function AssetsPage() {
     pathname,
     router,
   ]);
-
+useEffect(() => {
+    const id = setInterval(() => {
+      loadAssets();
+    }, 10000);
+    return () => clearInterval(id);
+  }, [loadAssets]);
   async function handleCreate(data: Parameters<typeof createAsset>[0]) {
     setLoading(true);
     const result = await createAsset(data);

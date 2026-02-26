@@ -24,7 +24,6 @@ export default async function EditUserPage({
     "use server";
     const res = await updateUser(id, data);
     if ("error" in res) {
-      // optional: handle error
       return;
     }
     redirect(`/dashboard/users/${id}`);

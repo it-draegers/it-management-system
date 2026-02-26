@@ -25,7 +25,6 @@ interface AssignUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userName: string;
-  // Called with the chosen assetId to assign to this user
   onAssign: (assetId: string) => Promise<void>;
 }
 

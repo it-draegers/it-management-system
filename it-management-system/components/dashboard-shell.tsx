@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+
 import { StatsCards } from "@/components/stats-cards";
 import {
   Card,
@@ -41,7 +43,7 @@ const floatLeft = {
     transition: {
       duration: 6,
       repeat: Infinity,
-      repeatType: "mirror",
+      repeatType: "mirror" as const,
       ease: "easeInOut",
     },
   },
@@ -54,14 +56,49 @@ const floatRight = {
     transition: {
       duration: 6,
       repeat: Infinity,
-      repeatType: "mirror",
+      repeatType: "mirror" as const,
       ease: "easeInOut",
-      delay: 1.5, 
+      delay: 1.5,
     },
   },
 };
 
-export function DashboardShell({ stats }: { stats: DashboardStats }) {
+interface DashboardShellProps {
+  stats: DashboardStats;
+}
+
+export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
+  const [stats, setStats] = useState<DashboardStats>(initialStats);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchStats() {
+      try {
+        const res = await fetch("/api/stats", {
+          method: "GET",
+          cache: "no-store",
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (isMounted && data.stats) {
+          setStats(data.stats as DashboardStats);
+        }
+      } catch (err) {
+        console.error("Failed to refresh stats", err);
+      }
+    }
+
+    fetchStats();
+
+    const intervalId = setInterval(fetchStats, 10_000); 
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
+  }, []);
+
   return (
     <motion.div
       className="flex flex-col gap-6"
@@ -82,7 +119,7 @@ export function DashboardShell({ stats }: { stats: DashboardStats }) {
         </p>
       </motion.div>
 
-      {/* Stats cards with pop-in */}
+      {/* Stats cards */}
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 6 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -286,12 +323,12 @@ export function DashboardShell({ stats }: { stats: DashboardStats }) {
                                 asset.status === "available"
                                   ? "border-success/30 bg-success/10 text-success"
                                   : asset.status === "assigned"
-                                    ? "border-primary/30 bg-primary/10 text-primary"
-                                    : asset.status === "maintenance"
-                                      ? "border-warning/30 bg-warning/10 text-warning"
-                                      : asset.status === "GeneralUse"
-                                        ? "border-primary/30 bg-primary/10 text-primary"
-                                        : "border-destructive/30 bg-destructive/10 text-destructive"
+                                  ? "border-primary/30 bg-primary/10 text-primary"
+                                  : asset.status === "maintenance"
+                                  ? "border-warning/30 bg-warning/10 text-warning"
+                                  : asset.status === "GeneralUse"
+                                  ? "border-primary/30 bg-primary/10 text-primary"
+                                  : "border-destructive/30 bg-destructive/10 text-destructive"
                               }
                             >
                               {asset.status ?? "unknown"}
