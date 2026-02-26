@@ -1,5 +1,14 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import {
+  ProgramsCard,
+  type Program,
+} from "@/components/programs-card";
+import {
+  addProgramToAsset,
+  removeProgramFromAsset,
+  getAssetWithPrograms,
+} from "@/lib/actions/program"; 
 
 import { getAsset } from "@/lib/actions/assets";
 import {
@@ -34,6 +43,7 @@ import {
 } from "lucide-react";
 import { AssetAssignmentCard } from "@/components/asset-assignment-card";
 import { DeleteAssetButton } from "@/components/ui/DeleteAssetButton";
+
 const statusColors: Record<string, string> = {
   available: "border-success/30 bg-success/10 text-success",
   assigned: "border-primary/30 bg-primary/10 text-primary",
@@ -43,11 +53,14 @@ const statusColors: Record<string, string> = {
 };
 
 export default async function AssetDetailPage({
+  
   params,
 }: {
   params: { id: string };
 }) {
+  "use server";
   const { id } = await params;
+
   const result = await getAsset(id);
 
   if ("error" in result) {
@@ -56,6 +69,11 @@ export default async function AssetDetailPage({
 
   const { asset } = result;
 
+  const programsResult = await getAssetWithPrograms(asset._id.toString());
+  const programs =
+    "programs" in programsResult && Array.isArray(programsResult.programs)
+      ? (programsResult.programs as Program[])
+      : [];
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -116,7 +134,9 @@ export default async function AssetDetailPage({
               <div className="flex items-center gap-3">
                 <HardDrive className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Brand / Model</p>
+                  <p className="text-xs text-muted-foreground">
+                    Brand / Model
+                  </p>
                   <p className="text-sm font-medium text-foreground">
                     {asset.brand || "-"} {asset.model || ""}
                   </p>
@@ -136,7 +156,9 @@ export default async function AssetDetailPage({
               <div className="flex items-center gap-3">
                 <Hash className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Serial Number</p>
+                  <p className="text-xs text-muted-foreground">
+                    Serial Number
+                  </p>
                   <p className="font-mono text-sm font-medium text-foreground">
                     {asset.serialNumber || "-"}
                   </p>
@@ -146,7 +168,9 @@ export default async function AssetDetailPage({
               <div className="flex items-center gap-3">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Purchase Date</p>
+                  <p className="text-xs text-muted-foreground">
+                    Purchase Date
+                  </p>
                   <p className="text-sm font-medium text-foreground">
                     {asset.purchaseDate || "-"}
                   </p>
@@ -180,6 +204,7 @@ export default async function AssetDetailPage({
           </CardContent>
         </Card>
 
+        {/* Assignment Card */}
         <AssetAssignmentCard
           assetId={asset._id}
           assetName={asset.name}
@@ -187,6 +212,14 @@ export default async function AssetDetailPage({
           assignedToName={asset.assignedToName}
           createdAt={asset.createdAt}
           updatedAt={asset.updatedAt}
+        />
+
+        {/* Programs Card */}
+        <ProgramsCard
+          assetId={asset._id.toString()}
+          programs={programs}
+          onAddProgram={addProgramToAsset}
+          onRemoveProgram={removeProgramFromAsset}
         />
       </div>
 
@@ -238,4 +271,8 @@ export default async function AssetDetailPage({
       )}
     </div>
   );
+}
+
+function setLocalPrograms(programs: Program[]) {
+  throw new Error("Function not implemented.");
 }
