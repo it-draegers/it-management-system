@@ -1,7 +1,6 @@
-// app/dashboard/assets/[id]/edit/page.tsx
 import { notFound, redirect } from "next/navigation";
 import { getAsset, updateAsset } from "@/lib/actions/assets";
-import { AssetForm } from "@/components/asset-form"; // adjust path
+import { AssetForm } from "@/components/asset-form"; 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";

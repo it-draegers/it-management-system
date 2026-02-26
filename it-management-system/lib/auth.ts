@@ -9,6 +9,7 @@ const JWT_SECRET = new TextEncoder().encode(
 const COOKIE_NAME = "it-admin-token"
 
 export interface AdminPayload {
+  _id: any
   id: string
   email: string
   name: string
@@ -50,7 +51,7 @@ export async function setAuthCookie(token: string) {
     httpOnly: true,
     secure: false,
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    maxAge: 60 * 60 * 24 * 7, 
     path: "/",
   })
 }

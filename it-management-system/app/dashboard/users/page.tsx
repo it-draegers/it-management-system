@@ -326,7 +326,7 @@ export default function UsersPage() {
                       delay: index * 0.015,
                     }}
                     whileHover={{
-                      backgroundColor: "rgba(148, 163, 184, 0.08)", // slate-400/20-ish
+                      backgroundColor: "rgba(148, 163, 184, 0.08)", 
                     }}
                   >
                     <TableCell className="font-medium text-foreground">
@@ -411,7 +411,6 @@ export default function UsersPage() {
                     </TableCell>
                     <TableCell
                       onClick={(e) => {
-                        // prevent row navigation when opening menu
                         e.stopPropagation();
                       }}
                     >

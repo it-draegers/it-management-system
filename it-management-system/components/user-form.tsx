@@ -64,7 +64,6 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
   async function handleAssign(assetId: string): Promise<void> {
-    // 🔴 Don't silently do nothing – show a helpful error
     if (!user?._id) {
       setError(
         "Cannot assign asset because this user has no ID yet. Save the user first, then try again.",
@@ -163,7 +162,6 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         />
       </div>
 
-      {/* Department / Location / Position */}
       <div className="grid grid-cols-2 gap-4">
         {/* Department */}
         <div className="flex flex-col gap-2">

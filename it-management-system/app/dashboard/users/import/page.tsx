@@ -42,9 +42,7 @@ export default function ImportUsersPage() {
         }.`
       );
 
-      // If you want to auto-return to users list:
-      // router.push("/dashboard/users");
-      // router.refresh();
+      
     } catch (err) {
       console.error(err);
       setError("Import failed");
