@@ -91,6 +91,10 @@ export async function getAssets(params?: {
     filter.location = params.location;
   }
 
+  if (params?.department && params.department !== "all") {
+  filter.department = params.department;   
+}
+
   const assets = await db
     .collection("assets")
     .find(filter)
@@ -124,6 +128,16 @@ export async function getAssets(params?: {
 
   return { assets: assetsWithNames as Asset[] };
 }
+
+export async function getDepartments() {
+  const admin = await getCurrentAdmin()
+  if (!admin) return { error: "Unauthorized" }
+
+  const db = await getDb()
+  const departments = await db.collection("assets").distinct("department")
+  return { departments: departments.filter(Boolean) as string[] }
+}
+
 
 export async function getAsset(id: string) {
   const admin = await getCurrentAdmin();

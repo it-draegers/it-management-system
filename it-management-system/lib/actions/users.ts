@@ -69,7 +69,7 @@ export async function getUsers(params?: {
   const users = await db
     .collection("users")
     .find(filter)
-    .sort({ createdAt: -1 })
+    .sort({firstName: 1})
     .toArray()
 
  const usersWithAssets = await Promise.all(

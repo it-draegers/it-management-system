@@ -10,6 +10,7 @@ import {
   assignAsset,
   unassignAsset,
   type Asset,
+  getDepartments,
 } from "@/lib/actions/assets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -89,6 +90,11 @@ export default function AssetsPage() {
   const [assigningAsset, setAssigningAsset] = useState<Asset | null>(null);
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
+  const [deptFilter, setDeptFilter] = useState("all");
+  const [departments, setDepartments] = useState<string[]>([]);
+
+
+
 
   const loadAssets = useCallback(async () => {
     const result = await getAssets({
@@ -96,12 +102,23 @@ export default function AssetsPage() {
       type: typeFilter,
       status: statusFilter,
       location: locationFilter,
+      department: deptFilter,
     });
     if ("assets" in result) {
       setAssets(result.assets ?? []);
     }
     setPageLoading(false);
-  }, [search, typeFilter, statusFilter, locationFilter]);
+  }, [search, typeFilter, statusFilter, locationFilter, deptFilter]);
+  const loadDepartments = useCallback(async () => {
+    const result = await getDepartments();
+    if ("departments" in result) {
+      setDepartments(result.departments ?? []);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadDepartments();
+  }, [loadDepartments]);
 
   useEffect(() => {
     loadAssets();
@@ -204,6 +221,22 @@ export default function AssetsPage() {
           </SelectContent>
         </Select>
 
+      <Select value={deptFilter} onValueChange={setDeptFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Department" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Departments</SelectItem>
+            {departments.map((dept) => (
+              <SelectItem key={dept} value={dept}>
+                {dept}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+
+
         <Select value={locationFilter} onValueChange={setLocationFilter}>
           <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="Location" />
@@ -243,7 +276,7 @@ export default function AssetsPage() {
 
               <TableHead className="text-muted-foreground">Status</TableHead>
               <TableHead className="text-muted-foreground">
-                Assigned To
+                User assigned / Department
               </TableHead>
               <TableHead className="text-muted-foreground">Location</TableHead>
               <TableHead className="w-[50px]">
