@@ -9,6 +9,10 @@ import {
   getDepartments,
   type User,
 } from "@/lib/actions/users";
+
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion"; 
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -58,12 +62,12 @@ import {
   Pencil,
   Trash2,
   Users,
-  HardDrive,
   Link,
-  User,
+  User as UserIcon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import Loading from "@/components/ui/loading";
+
+const MotionTableRow = motion(TableRow);
 
 export default function UsersPage() {
   const router = useRouter();
@@ -86,7 +90,6 @@ export default function UsersPage() {
       status: statusFilter,
       location: locationFilter,
     });
-    // Ensure we never pass undefined to setUsers
     if ("users" in result) {
       setUsers(result.users ?? []);
     } else {
@@ -110,7 +113,6 @@ export default function UsersPage() {
     loadDepartments();
   }, [loadDepartments]);
 
-  // Debounced search
   useEffect(() => {
     const timeout = setTimeout(() => {
       loadUsers();
@@ -142,6 +144,7 @@ export default function UsersPage() {
     loadUsers();
     loadDepartments();
   }
+
   async function navigateToImport() {
     router.push("/dashboard/users/import");
   }
@@ -154,10 +157,20 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+    <motion.div
+      className="flex flex-col gap-6"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+    >
+      <motion.div
+        className="flex items-center justify-between"
+        initial={{ opacity: 0, y: -6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, delay: 0.05 }}
+      >
         <div>
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-2xl font-bold text-foreground flex items-center">
             <Users className="mr-2 inline h-5 w-5 text-muted-foreground" />
             Users
           </h1>
@@ -165,10 +178,16 @@ export default function UsersPage() {
             Manage employees and their asset assignments
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <motion.div
+          className="flex items-center gap-2"
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.2, delay: 0.12 }}
+        >
           <Button
             className="cursor-pointer"
             onClick={() => setIsCreateOpen(true)}
+            asChild={false}
           >
             <Plus className="mr-2 h-4 w-4" />
             Add User
@@ -177,11 +196,16 @@ export default function UsersPage() {
             <Link className="mr-2 h-4 w-4" />
             Import Users (.csv)
           </Button>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <motion.div
+        className="flex flex-col gap-3 sm:flex-row sm:items-center"
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.2, delay: 0.1 }}
+      >
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -227,10 +251,15 @@ export default function UsersPage() {
             <SelectItem value="suspended">Suspended</SelectItem>
           </SelectContent>
         </Select>
-      </div>
+      </motion.div>
 
       {/* Table */}
-      <div className="rounded-lg border border-border">
+      <motion.div
+        className="rounded-lg border border-border"
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, delay: 0.14 }}
+      >
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -264,7 +293,12 @@ export default function UsersPage() {
                   colSpan={7}
                   className="py-12 text-center text-muted-foreground"
                 >
-                  <div className="flex flex-col items-center gap-2">
+                  <motion.div
+                    className="flex flex-col items-center gap-2"
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <Users className="h-8 w-8 text-muted-foreground/50" />
                     <p>No users found</p>
                     <Button
@@ -274,119 +308,148 @@ export default function UsersPage() {
                     >
                       Add your first user
                     </Button>
-                  </div>
+                  </motion.div>
                 </TableCell>
               </TableRow>
             ) : (
-              users.map((user) => (
-                <TableRow className="cursor-pointer" key={user._id}>
-                  <TableCell
-                    onClick={() => router.push(`/dashboard/users/${user._id}`)}
-                    className="font-medium text-foreground"
-                  >
-                    <User className="mr-2 inline h-4 w-4 text-muted-foreground" />
-                    
-                    {user.firstName} {user.lastName}
-                  </TableCell>
-                  <TableCell
-                    onClick={() => router.push(`/dashboard/users/${user._id}`)}
-                    className="text-muted-foreground"
-                  >
-                    {user.email}
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      onClick={() =>
-                        router.push(`/dashboard/users/${user._id}`)
-                      }
-                      variant="outline"
-                      className="text-xs"
-                    >
-                      {user.department}
-                    </Badge>
-                  </TableCell>
-                  <TableCell
-                    onClick={() => router.push(`/dashboard/users/${user._id}`)}
-                    className="text-muted-foreground"
-                  >
-                    {user.position || "-"}
-                  </TableCell>
-                  <TableCell
+              <AnimatePresence initial={false}>
+                {users.map((user, index) => (
+                  <MotionTableRow
+                    key={user._id}
                     className="cursor-pointer"
                     onClick={() => router.push(`/dashboard/users/${user._id}`)}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{
+                      duration: 0.18,
+                      delay: index * 0.015,
+                    }}
+                    whileHover={{
+                      backgroundColor: "rgba(148, 163, 184, 0.08)", // slate-400/20-ish
+                    }}
                   >
-                    <Badge
-                      variant={
-                        user.status === "active" ? "default" : "secondary"
-                      }
-                      className={
-                        user.status === "active"
-                          ? "bg-success/10 text-success hover:bg-success/20"
-                          : ""
-                      }
+                    <TableCell className="font-medium text-foreground">
+                      <UserIcon className="mr-2 inline h-4 w-4 text-muted-foreground" />
+                      {user.firstName} {user.lastName}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {user.email}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/dashboard/users/${user._id}`);
+                        }}
+                        variant="outline"
+                        className="text-xs"
+                      >
+                        {user.department}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {user.position || "-"}
+                    </TableCell>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/dashboard/users/${user._id}`);
+                      }}
                     >
-                      {user.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell
-                    className="cursor-pointer"
-                    onClick={() => router.push(`/dashboard/users/${user._id}`)}
-                  >
-                    {user.assignedAssets && user.assignedAssets.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {user.assignedAssets.map((asset) => (
-                          <Badge
-                            key={asset._id}
-                            variant="outline"
-                            className="text-xs"
+                      <Badge
+                        variant={
+                          user.status === "active" ? "default" : "secondary"
+                        }
+                        className={
+                          user.status === "active"
+                            ? "bg-success/10 text-success hover:bg-success/20"
+                            : ""
+                        }
+                      >
+                        {user.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/dashboard/users/${user._id}`);
+                      }}
+                    >
+                      {user.assignedAssets && user.assignedAssets.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {user.assignedAssets.map((asset) => (
+                            <Badge
+                              key={asset._id}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(
+                                    `/dashboard/assets/${asset._id}`,
+                                  );
+                                }}
+                                className="text-blue-500 hover:underline cursor-pointer"
+                              >
+                                {asset.name}
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">
+                          No assets
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {user.location}
+                    </TableCell>
+                    <TableCell
+                      onClick={(e) => {
+                        // prevent row navigation when opening menu
+                        e.stopPropagation();
+                      }}
+                    >
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
                           >
-<div>
-                            <button onClick={(e) => { e.stopPropagation(); router.push(`/dashboard/assets/${asset._id}`); }} className="text-blue-500 hover:underline cursor-pointer">
-                              
-                              {asset.name}
-                            </button>
-                            </div>
-                          </Badge>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">
-                        No assets
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {user.location}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setEditingUser(user)}>
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
-                          onClick={() => setDeletingUser(user)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => setEditingUser(user)}
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => setDeletingUser(user)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </MotionTableRow>
+                ))}
+              </AnimatePresence>
             )}
           </TableBody>
         </Table>
-      </div>
+      </motion.div>
 
       {/* Create Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
@@ -452,6 +515,6 @@ export default function UsersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </motion.div>
   );
 }

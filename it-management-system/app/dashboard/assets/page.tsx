@@ -12,6 +12,9 @@ import {
   type Asset,
   getDepartments,
 } from "@/lib/actions/assets";
+
+import { motion, AnimatePresence } from "framer-motion"; 
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -78,6 +81,8 @@ const statusColors: Record<string, string> = {
   GeneralUse: "border-primary/30 bg-primary/10 text-primary",
 };
 
+const MotionTableRow = motion(TableRow);
+
 export default function AssetsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -97,13 +102,12 @@ export default function AssetsPage() {
   const [deptFilter, setDeptFilter] = useState("all");
   const [departments, setDepartments] = useState<string[]>([]);
 
-  
   useEffect(() => {
     const status = searchParams.get("status");
     const department = searchParams.get("department");
     const location = searchParams.get("location");
     const type = searchParams.get("type");
-    const q = searchParams.get("q"); 
+    const q = searchParams.get("q");
 
     if (status) setStatusFilter(status);
     if (department) setDeptFilter(department);
@@ -214,10 +218,21 @@ export default function AssetsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+    <motion.div
+      className="flex flex-col gap-6"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+    >
+      {/* Header */}
+      <motion.div
+        className="flex items-center justify-between"
+        initial={{ opacity: 0, y: -6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, delay: 0.05 }}
+      >
         <div>
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-2xl font-bold text-foreground flex items-center">
             <Computer className="mr-2 inline h-5 w-5 text-muted-foreground" />
             Assets
           </h1>
@@ -225,16 +240,28 @@ export default function AssetsPage() {
             Manage IT equipment and computer inventory
           </p>
         </div>
-        <Button
-          className="cursor-pointer"
-          onClick={() => setIsCreateOpen(true)}
+        <motion.div
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.2, delay: 0.12 }}
         >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Asset
-        </Button>
-      </div>
+          <Button
+            className="cursor-pointer"
+            onClick={() => setIsCreateOpen(true)}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Asset
+          </Button>
+        </motion.div>
+      </motion.div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      {/* Filters */}
+      <motion.div
+        className="flex flex-col gap-3 sm:flex-row sm:items-center"
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.2, delay: 0.1 }}
+      >
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -303,10 +330,15 @@ export default function AssetsPage() {
             <SelectItem value="GeneralUse">General Use</SelectItem>
           </SelectContent>
         </Select>
-      </div>
+      </motion.div>
 
       {/* Table */}
-      <div className="rounded-lg border border-border">
+      <motion.div
+        className="rounded-lg border border-border"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, delay: 0.14 }}
+      >
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -339,7 +371,12 @@ export default function AssetsPage() {
                   colSpan={7}
                   className="py-12 text-center text-muted-foreground"
                 >
-                  <div className="flex flex-col items-center gap-2">
+                  <motion.div
+                    className="flex flex-col items-center gap-2"
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <HardDrive className="h-8 w-8 text-muted-foreground/50" />
                     <p>No assets found</p>
                     <Button
@@ -349,136 +386,151 @@ export default function AssetsPage() {
                     >
                       Add your first asset
                     </Button>
-                  </div>
+                  </motion.div>
                 </TableCell>
               </TableRow>
             ) : (
-              assets.map((asset) => (
-                <TableRow
-                  key={asset._id}
-                  className="cursor-pointer"
-                  onClick={() => router.push(`/dashboard/assets/${asset._id}`)}
-                >
-                  <TableCell className="font-medium text-foreground">
-                    <Computer className="mr-2 inline h-4 w-4 text-muted-foreground" />
-                    {asset.name}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-xs">
-                      {asset.type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {asset.notes || "-"}
-                  </TableCell>
+              <AnimatePresence initial={false}>
+                {assets.map((asset, index) => (
+                  <MotionTableRow
+                    key={asset._id}
+                    className="cursor-pointer"
+                    onClick={() =>
+                      router.push(`/dashboard/assets/${asset._id}`)
+                    }
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{
+                      duration: 0.18,
+                      delay: index * 0.015,
+                    }}
+                    whileHover={{
+                      backgroundColor: "rgba(148, 163, 184, 0.08)", 
+                    }}
+                  >
+                    <TableCell className="font-medium text-foreground">
+                      <Computer className="mr-2 inline h-4 w-4 text-muted-foreground" />
+                      {asset.name}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">
+                        {asset.type}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {asset.notes || "-"}
+                    </TableCell>
 
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={statusColors[asset.status] || ""}
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={statusColors[asset.status] || ""}
+                      >
+                        {asset.status === "GeneralUse"
+                          ? "General Use"
+                          : asset.status.charAt(0).toUpperCase() +
+                            asset.status.slice(1)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-foreground">
+                      {asset.assignedToName ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/dashboard/users/${asset.assignedTo}`);
+                          }}
+                          className="text-blue-500 hover:underline cursor-pointer"
+                        >
+                          {asset.assignedToName}
+                        </button>
+                      ) : asset.department ? (
+                        <span className="text-foreground">
+                          {asset.department}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground/50">
+                          Unassigned
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {asset.location || "-"}
+                    </TableCell>
+                    <TableCell
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
                     >
-                      {asset.status === "GeneralUse"
-                        ? "General Use"
-                        : asset.status.charAt(0).toUpperCase() +
-                          asset.status.slice(1)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    {asset.assignedToName ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/dashboard/users/${asset.assignedTo}`);
-                        }}
-                        className="text-blue-500 hover:underline cursor-pointer"
-                      >
-                        {asset.assignedToName}
-                      </button>
-                    ) : asset.department ? (
-                      <span className="text-foreground">
-                        {asset.department}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground/50">
-                        Unassigned
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {asset.location || "-"}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        asChild
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/dashboard/assets/${asset._id}`);
-                          }}
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingAsset(asset);
-                          }}
-                        >
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        {asset.assignedTo ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
                           <DropdownMenuItem
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleUnassign(asset._id);
+                              router.push(`/dashboard/assets/${asset._id}`);
                             }}
                           >
-                            <Unlink className="mr-2 h-4 w-4" />
-                            Unassign
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
                           </DropdownMenuItem>
-                        ) : (
                           <DropdownMenuItem
                             onClick={(e) => {
                               e.stopPropagation();
-                              setAssigningAsset(asset);
+                              setEditingAsset(asset);
                             }}
                           >
-                            <Link2 className="mr-2 h-4 w-4" />
-                            Assign to User
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
                           </DropdownMenuItem>
-                        )}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeletingAsset(asset);
-                          }}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
+                          <DropdownMenuSeparator />
+                          {asset.assignedTo ? (
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleUnassign(asset._id);
+                              }}
+                            >
+                              <Unlink className="mr-2 h-4 w-4" />
+                              Unassign
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setAssigningAsset(asset);
+                              }}
+                            >
+                              <Link2 className="mr-2 h-4 w-4" />
+                              Assign to User
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeletingAsset(asset);
+                            }}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </MotionTableRow>
+                ))}
+              </AnimatePresence>
             )}
           </TableBody>
         </Table>
-      </div>
+      </motion.div>
 
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[560px]">
@@ -496,6 +548,7 @@ export default function AssetsPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Edit*/}
       <Dialog
         open={!!editingAsset}
         onOpenChange={(open) => !open && setEditingAsset(null)}
@@ -523,6 +576,7 @@ export default function AssetsPage() {
         />
       )}
 
+      {/* Delete Confirmation */}
       <AlertDialog
         open={!!deletingAsset}
         onOpenChange={(open) => !open && setDeletingAsset(null)}
@@ -549,6 +603,6 @@ export default function AssetsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </motion.div>
   );
 }
