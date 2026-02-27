@@ -55,8 +55,8 @@ export function ServerForm({ server, onSubmit, onCancel, loading }: ServerFormPr
       name: name.trim(),
       ipAddress: ipAddress.trim(),
       role: role.trim() || undefined,
-      environment,
-      status,
+      environment: environment as any,
+      status: status as any,
       os: os.trim() || undefined,
       location: location.trim() || undefined,
       notes: notes.trim() || undefined,
@@ -113,9 +113,7 @@ export function ServerForm({ server, onSubmit, onCancel, loading }: ServerFormPr
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Production">Production</SelectItem>
-              <SelectItem value="Staging">Staging</SelectItem>
               <SelectItem value="Development">Development</SelectItem>
-              <SelectItem value="Lab">Lab</SelectItem>
             </SelectContent>
           </Select>
         </div>

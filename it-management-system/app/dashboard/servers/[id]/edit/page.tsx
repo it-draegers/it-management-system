@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { getServer } from "@/lib/actions/servers";
+import { getServer, updateServer } from "@/lib/actions/servers";
 import { ServerForm } from "@/components/server-form";
 
 export default async function EditServersPage({
@@ -22,9 +22,9 @@ export default async function EditServersPage({
 
   const { server } = result;
 
-  async function handleSubmit(data: Parameters<typeof updateAsset>[1]) {
+  async function handleSubmit(data: Parameters<typeof updateServer>[1]) {
     "use server";
-    const res = await updateAsset(id, data);
+    const res = await updateServer(id, data);
     if ("error" in res) {
       return;
     }
