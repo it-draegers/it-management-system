@@ -8,7 +8,7 @@ import {
   addProgramToAsset,
   removeProgramFromAsset,
   getAssetWithPrograms,
-} from "@/lib/actions/program"; 
+} from "@/lib/actions/program";
 
 import { getAsset } from "@/lib/actions/assets";
 import {
@@ -32,7 +32,6 @@ import {
 import {
   ArrowLeft,
   HardDrive,
-  User,
   Calendar,
   Hash,
   Tag,
@@ -53,12 +52,10 @@ const statusColors: Record<string, string> = {
 };
 
 export default async function AssetDetailPage({
-  
   params,
 }: {
   params: { id: string };
 }) {
-  "use server";
   const { id } = await params;
 
   const result = await getAsset(id);
@@ -75,7 +72,6 @@ export default async function AssetDetailPage({
       ? (programsResult.programs as Program[])
       : [];
 
-      
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -100,9 +96,9 @@ export default async function AssetDetailPage({
         </Badge>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Asset Details Card */}
-        <Card className="border-border">
+      {/* Main grid */}
+      <div className="grid gap-6 md:grid-cols-2 items-start">
+        <Card className="border-border h-full">
           <CardHeader className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <HardDrive className="h-4 w-4 text-muted-foreground" />
@@ -121,8 +117,9 @@ export default async function AssetDetailPage({
               <DeleteAssetButton assetId={asset._id.toString()} />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-4">
+
+          <CardContent className="flex flex-col gap-6">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex items-center gap-3">
                 <Tag className="h-4 w-4 text-muted-foreground" />
                 <div>
@@ -132,19 +129,17 @@ export default async function AssetDetailPage({
                   </p>
                 </div>
               </div>
-              <Separator />
+
               <div className="flex items-center gap-3">
                 <HardDrive className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">
-                    Brand / Model
-                  </p>
+                  <p className="text-xs text-muted-foreground">Brand / Model</p>
                   <p className="text-sm font-medium text-foreground">
                     {asset.brand || "-"} {asset.model || ""}
                   </p>
                 </div>
               </div>
-              <Separator />
+
               <div className="flex items-center gap-3">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <div>
@@ -154,32 +149,27 @@ export default async function AssetDetailPage({
                   </p>
                 </div>
               </div>
-              <Separator />
+
               <div className="flex items-center gap-3">
                 <Hash className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">
-                    Serial Number
-                  </p>
+                  <p className="text-xs text-muted-foreground">Serial Number</p>
                   <p className="font-mono text-sm font-medium text-foreground">
                     {asset.serialNumber || "-"}
                   </p>
                 </div>
               </div>
-              <Separator />
+
               <div className="flex items-center gap-3">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">
-                    Purchase Date
-                  </p>
+                  <p className="text-xs text-muted-foreground">Purchase Date</p>
                   <p className="text-sm font-medium text-foreground">
                     {asset.purchaseDate || "-"}
                   </p>
                 </div>
               </div>
 
-              <Separator />
               <div className="flex items-center gap-3">
                 <Building className="h-4 w-4 text-muted-foreground" />
                 <div>
@@ -189,24 +179,36 @@ export default async function AssetDetailPage({
                   </p>
                 </div>
               </div>
+            </div>
 
-              {asset.notes && (
-                <>
-                  <Separator />
-                  <div className="flex items-start gap-3">
-                    <FileText className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">Notes</p>
-                      <p className="text-sm text-foreground">{asset.notes}</p>
-                    </div>
+            {/* Notes */}
+            {asset.notes && (
+              <>
+                <Separator />
+                <div className="flex items-start gap-3">
+                  <FileText className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Notes</p>
+                    <p className="text-sm text-foreground">{asset.notes}</p>
                   </div>
-                </>
-              )}
+                </div>
+              </>
+            )}
+
+            <Separator />
+            <div>
+
+              <ProgramsCard
+                assetId={asset._id.toString()}
+                programs={programs}
+                onAddProgram={addProgramToAsset}
+                onRemoveProgram={removeProgramFromAsset}
+              />
             </div>
           </CardContent>
         </Card>
 
-        {/* Assignment Card */}
+        {/* Assignment Card on the right */}
         <AssetAssignmentCard
           assetId={asset._id}
           assetName={asset.name}
@@ -214,14 +216,6 @@ export default async function AssetDetailPage({
           assignedToName={asset.assignedToName}
           createdAt={asset.createdAt}
           updatedAt={asset.updatedAt}
-        />
-
-        {/* Programs Card */}
-        <ProgramsCard
-          assetId={asset._id.toString()}
-          programs={programs}
-          onAddProgram={addProgramToAsset}
-          onRemoveProgram={removeProgramFromAsset}
         />
       </div>
 
@@ -273,8 +267,4 @@ export default async function AssetDetailPage({
       )}
     </div>
   );
-}
-
-function setLocalPrograms(programs: Program[]) {
-  throw new Error("Function not implemented.");
 }

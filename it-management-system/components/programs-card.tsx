@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -131,6 +131,8 @@ export function ProgramsCard({
   const [error, setError] = useState("");
   const [suggestionsList, setSuggestionsList] = useState(false);
   const [appList, setAppList] = useState(false);
+    const inputWrapperRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     setProgramList(programs);
     console.log(apps);
@@ -138,7 +140,22 @@ export function ProgramsCard({
   const apps = useMemo(() => {
     return KNOWN_PROGRAMS.map((p) => p);
   }, [name]);
+ useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        inputWrapperRef.current &&
+        !inputWrapperRef.current.contains(event.target as Node)
+      ) {
+        setSuggestionsList(false);
+        setAppList(false);
+      }
+    }
 
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   const suggestions = useMemo(() => {
     const query = name.trim().toLowerCase();
     if (!query) return [];
@@ -147,11 +164,23 @@ export function ProgramsCard({
     ).slice(0, 6);
   }, [name]);
 
+  
+
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
-    setSuggestionsList(true);
-    if (!name.trim()) {
+    setSuggestionsList(false);
+     
+    const normalizedName = name.trim();
+    if (!normalizedName) {
       setError("Program name is required");
+      return;
+    }
+const exists = programList.some(
+      (p) => p.name.trim().toLowerCase() === normalizedName.toLowerCase(),
+    );
+   
+    if (exists) {
+      setError("This program is already added to this asset.");
       return;
     }
     setError("");
@@ -190,9 +219,9 @@ export function ProgramsCard({
       return;
     }
     console.log(error);
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
+    //setTimeout(() => {
+      //window.location.reload();
+   // }, 1000);
   }
 
   async function handleRemove(programId?: string) {
@@ -278,7 +307,9 @@ export function ProgramsCard({
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.16, ease: "easeOut" }}
               >
-                <div className="grid gap-2 md:grid-cols-3">
+                <div className="grid gap-2 md:grid-cols-3"
+                    ref={inputWrapperRef}             
+>
                   <div className="relative md:col-span-1">
                     <div className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">
                       <Search className="h-3.5 w-3.5" />
@@ -445,7 +476,7 @@ export function ProgramsCard({
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-2">
+           <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
               <AnimatePresence initial={false}>
                 {programList.map((program) => (
                   <motion.div

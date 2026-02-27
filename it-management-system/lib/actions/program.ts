@@ -12,7 +12,6 @@ export type Program = {
   logoUrl?: string;
 };
 
-
 export async function getAssetWithPrograms(assetId: string) {
   const admin = await getCurrentAdmin();
   if (!admin) return { error: "Unauthorized" };
@@ -60,29 +59,53 @@ export async function addProgramToAsset(assetId: string, program: Program) {
 
   const db = await getDb();
 
+  // 🔹 Normalize the name so we compare consistently
+  const rawName = program.name ?? "";
+  const normalizedName = rawName.trim();
+
+  if (!normalizedName) {
+    return { error: "Program name is required" };
+  }
+
+  const nameKey = normalizedName.toLowerCase(); // used for duplicate check
+
+  const assetObjectId = new ObjectId(assetId);
+
+  // 🔹 Check for duplicate by normalized name (case-insensitive)
+  const existing = await db.collection("assetPrograms").findOne({
+    assetId: assetObjectId,
+    nameKey, // compare by normalized key
+  });
+
+  if (existing) {
+    return { error: "Program already assigned to this asset" };
+  }
+
+  const logoUrl = program.logoUrl ?? guessLogoUrl(program);
+
   const doc = {
-    assetId: new ObjectId(assetId),
-    name: program.name,
+    assetId: assetObjectId,
+    name: normalizedName,     // pretty name to display
+    nameKey,                  // normalized name for duplicates
     version: program.version ?? null,
     vendor: program.vendor ?? null,
-    logoUrl: program.logoUrl ?? guessLogoUrl(program),
+    logoUrl: logoUrl ?? null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
 
-
   const result = await db.collection("assetPrograms").insertOne(doc);
+
   const createdProgram: Program = {
     _id: result.insertedId.toString(),
-    name: program.name,
+    name: normalizedName,
     version: program.version,
     vendor: program.vendor,
-    logoUrl: program.logoUrl ?? guessLogoUrl(program),
+    logoUrl: logoUrl ?? undefined,
   };
 
   return { success: true, program: createdProgram };
 }
-
 
 export async function removeProgramFromAsset(
   assetId: string,
