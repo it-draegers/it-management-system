@@ -384,13 +384,7 @@ export default function AssetsPage() {
                   >
                     <HardDrive className="h-8 w-8 text-muted-foreground/50" />
                     <p>No assets found</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsCreateOpen(true)}
-                    >
-                      Add your first asset
-                    </Button>
+                    
                   </motion.div>
                 </TableCell>
               </TableRow>

@@ -288,13 +288,7 @@ export default function UsersPage() {
                   <motion.div className="flex flex-col items-center gap-2">
                     <Users className="h-8 w-8 text-muted-foreground/50" />
                     <p>No users found</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsCreateOpen(true)}
-                    >
-                      Add your first user
-                    </Button>
+                    
                   </motion.div>
                 </TableCell>
               </TableRow>
