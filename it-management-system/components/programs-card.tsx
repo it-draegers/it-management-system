@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, X, MonitorSmartphone, Disc3, Search } from "lucide-react";
 import { redirect } from "next/dist/server/api-utils";
 import { set } from "date-fns";
+import { getAssetWithPrograms } from "@/lib/actions/program";
 
 export type Program = {
   _id?: string;
@@ -200,6 +201,13 @@ const exists = programList.some(
         ...prev,
         { ...payload, _id: Math.random().toString(36).slice(2) },
       ]);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+
+
+      const updatedPrograms = await getAssetWithPrograms(assetId);
+      console.log("Updated programs:", updatedPrograms);
       setName("");
       setVersion("");
       setVendor("");
@@ -215,13 +223,13 @@ const exists = programList.some(
     }
   }
   function handleRefresh() {
-    if (!name.trim()) {
-      return;
-    }
+   // if (!name.trim() || error) {
+     // return;
+    //}
     console.log(error);
     //setTimeout(() => {
       //window.location.reload();
-   // }, 1000);
+    //}, 1000);
   }
 
   async function handleRemove(programId?: string) {
