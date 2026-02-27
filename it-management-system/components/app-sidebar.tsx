@@ -30,6 +30,7 @@ import {
   ShieldCheck,
   ListCheck,
   UserPlus,
+  ServerIcon,
 } from "lucide-react";
 import { getTaskCount } from "@/lib/actions/tasks";
 import { useEffect, useState } from "react";
@@ -51,10 +52,15 @@ const navItems = [
     icon: HardDrive,
   },
   {
+    title: "Servers",
+    url: "/dashboard/servers",
+    icon: ServerIcon,
+  },
+  {
     title: "Tasks",
     url: "/dashboard/tasks",
     icon: ListCheck,
-  },
+  }
 ];
 
 interface AppSidebarProps {
