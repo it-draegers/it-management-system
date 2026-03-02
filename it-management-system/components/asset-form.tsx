@@ -19,6 +19,7 @@ import { Loader2, Plus, X } from "lucide-react";
 import type { Asset } from "@/lib/actions/assets";
 import { AssignAssetDialog } from "@/components/assign-asset-dialog";
 import { de } from "date-fns/locale";
+import { toast } from "sonner";
 
 interface AssetFormProps {
   asset?: Asset | null;
@@ -134,6 +135,8 @@ export function AssetForm({
     console.log("submitting status", status);
 
     try {
+      setTimeout(() => {
+      }, 5000);
       await onSubmit({
         name: formData.get("name") as string,
         type: (formData.get("type") as any) || "Laptop",
@@ -150,10 +153,17 @@ export function AssetForm({
         department:
           (formData.get("department") as string) === "none"
             ? ""
-            : (formData.get("department") as string),
+            : (formData.get("department") as Department),
       });
+      toast.success(asset ? `${asset.name} updated` : "Asset created", {
+              description: "",
+
+      });
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
+      
+      return;
     }
   }
 

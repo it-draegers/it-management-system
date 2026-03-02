@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/ui/loading";
+import { toast } from "sonner";
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -59,6 +60,9 @@ export default function TasksPage() {
 
     setLoading(true);
     const result = await createTask(trimmed);
+    toast.success("Task added", {
+      description: ``, 
+    });
     setLoading(false);
 
 
@@ -78,6 +82,9 @@ export default function TasksPage() {
   async function handleDeleteTask(id: string) {
     setError("");
     const result = await deleteTask(id);
+    toast.success("Task deleted", {
+      description: "",
+    });
     if ("error" in result && result.error) {
       setError(result.error);
       return;
@@ -101,6 +108,9 @@ export default function TasksPage() {
 
     setEditingLoading(true);
     const result = await updateTask(task._id, { title: trimmed });
+    toast.success("Task updated", {
+      description: "",
+    });
     setEditingLoading(false);
 
     if ("error" in result && result.error) {
@@ -121,6 +131,9 @@ export default function TasksPage() {
   async function handleToggleCompleted(task: Task) {
     setError("");
     const result = await toggleTaskCompleted(task._id, !task.completed);
+    toast.success(`Task marked as ${!task.completed ? "completed" : "incomplete"}`, {
+      description: "",
+    });
     if ("error" in result && result.error) {
       setError(result.error);
       return;

@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { getServer, updateServer } from "@/lib/actions/servers";
 import { ServerForm } from "@/components/server-form";
+import { toast } from "sonner";
 
 export default async function EditServersPage({
   params,
@@ -24,11 +25,14 @@ export default async function EditServersPage({
 
   async function handleSubmit(data: Parameters<typeof updateServer>[1]) {
     "use server";
+    console.log("Form data:", data);
     const res = await updateServer(id, data);
     if ("error" in res) {
+      
       return;
     }
-    redirect(`/dashboard/servers/${id}/edit`);
+  
+    redirect(`/dashboard/servers/${id}`);
   }
 
   async function handleCancel() {

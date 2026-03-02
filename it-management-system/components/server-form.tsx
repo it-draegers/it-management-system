@@ -20,6 +20,7 @@ import type { User } from "@/lib/actions/users";
 import { AssignUserDialog } from "@/components/assign-user-dialogue";
 import { assignAsset, unassignAsset } from "@/lib/actions/assets";
 import { createServer, Server} from "@/lib/actions/servers";
+import { toast } from "sonner";
 
 
 interface ServerFormProps {
@@ -47,8 +48,14 @@ export function ServerForm({ server, onSubmit, onCancel, loading }: ServerFormPr
     e.preventDefault();
     if (!name.trim() || !ipAddress.trim()) {
       setError("Name and IP address are required");
+        toast.error("Failed to save server", {
+            description: "There was an error saving the server. Please check the form and try again.",
+        });
       return;
     }
+    toast.success(server?.name + " updated", {
+        description: server?.name + " was updated successfully.",
+    });
     setError("");
 
     await onSubmit({

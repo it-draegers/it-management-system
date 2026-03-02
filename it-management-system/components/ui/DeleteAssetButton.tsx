@@ -18,6 +18,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { deleteAsset } from "@/lib/actions/assets";
+import { toast } from "sonner";
 
 interface DeleteAssetButtonProps {
   assetId: string;
@@ -28,6 +29,9 @@ export function DeleteAssetButton({ assetId }: DeleteAssetButtonProps) {
 
   async function handleDelete() {
     await deleteAsset(assetId);
+    toast.success("Asset deleted", {
+        description: "The asset was deleted successfully.",
+    }); 
     redirect("/dashboard/assets");
   }
 

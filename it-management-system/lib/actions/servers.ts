@@ -79,7 +79,6 @@ export async function getServers(params: GetServersParams) {
 
     const filters: any = {};
 
-    // Search across name, ipAddress, role, os, owner
     if (params.search && params.search.trim()) {
       const q = params.search.trim();
       filters.$or = [
@@ -135,8 +134,7 @@ export async function createServer(data: CreateServerInput) {
       return { error: "Failed to create server" };
     }
 
-    // You’re only checking for `error` on the client,
-    // so returning success is enough.
+    
     return { success: true };
   } catch (err) {
     console.error("createServer error:", err);

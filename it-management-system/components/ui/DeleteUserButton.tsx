@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface DeleteUserButtonProps {
   userId: string;
@@ -27,6 +28,10 @@ export function DeleteUserButton({ userId }: DeleteUserButtonProps) {
 
   async function handleDelete() {
     await deleteUser(userId);
+    toast.success("User deleted", {
+          description: "",
+
+    });
     redirect("/dashboard/users");
   }
 

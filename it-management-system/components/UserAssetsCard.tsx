@@ -35,6 +35,7 @@ import {
   DialogHeader as DialogBodyHeader,
   DialogTitle as DialogBodyTitle,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 interface UserAssetsCardProps {
   userId: string;
@@ -69,7 +70,11 @@ export function UserAssetsCard({
   async function handleAssign(assetId: string): Promise<void> {
     try {
       await assignAsset(assetId, userId);
+      
       router.refresh();
+      toast.success("Asset assigned", {
+        description: "The asset was assigned to the user successfully.",
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -80,6 +85,9 @@ export function UserAssetsCard({
   async function handleUnassign(assetId: string): Promise<void> {
     try {
       await setAssetAvailable(assetId);
+      toast.success("Asset unassigned", {
+        description: "The asset was unassigned from the user and set to available.",
+      });
       router.refresh();
     } catch (err) {
       console.error(err);

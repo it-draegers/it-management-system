@@ -69,7 +69,7 @@ import {
   User as UserIcon,
 } from "lucide-react";
 import Loading from "@/components/ui/loading";
-
+import { toast } from "sonner";
 const statusColors: Record<string, string> = {
   online: "border-success/30 bg-success/10 text-success",
   maintenance: "border-warning/30 bg-warning/10 text-warning",
@@ -103,7 +103,7 @@ function ServerForm({ server, onSubmit, onCancel, loading }: ServerFormProps) {
   const [status, setStatus] = useState(server?.status ?? "online");
   const [os, setOs] = useState(server?.os ?? "");
   const [location, setLocation] = useState(server?.location ?? "");
-  const [owner, setOwner] = useState(server?.owner ?? "");
+  const [owner, setOwner] = useState(server?.owner ?? ""); // kept for future use if you expose it
   const [notes, setNotes] = useState(server?.notes ?? "");
   const [error, setError] = useState("");
 
@@ -168,10 +168,7 @@ function ServerForm({ server, onSubmit, onCancel, loading }: ServerFormProps) {
           <label className="text-xs font-medium text-muted-foreground">
             Environment
           </label>
-          <Select
-            value={environment}
-            onValueChange={(v) => setEnvironment(v)}
-          >
+          <Select value={environment} onValueChange={(v) => setEnvironment(v)}>
             <SelectTrigger>
               <SelectValue placeholder="Select environment" />
             </SelectTrigger>
@@ -223,7 +220,6 @@ function ServerForm({ server, onSubmit, onCancel, loading }: ServerFormProps) {
             placeholder="e.g. SSF, MP, etc."
           />
         </div>
-        
       </div>
 
       <div className="space-y-1">
@@ -280,6 +276,16 @@ export default function ServersPage() {
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
 
+  // ✅ success banner text
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Auto-hide success banner after 3 seconds
+  useEffect(() => {
+    if (!successMessage) return;
+    const timer = setTimeout(() => setSuccessMessage(null), 3000);
+    return () => clearTimeout(timer);
+  }, [successMessage]);
+
   const loadServers = useCallback(async () => {
     const result = await getServers({
       search: search || undefined,
@@ -312,8 +318,15 @@ export default function ServersPage() {
     const result = await createServer(data);
     setLoading(false);
     if ("error" in result && result.error) {
-      throw new Error(result.error);
+      toast.error("Failed to create server", {
+        description: result.error,
+      });
+      return;
     }
+
+    toast.success("Server created", {
+      description: "",
+    });
     setIsCreateOpen(false);
     loadServers();
   }
@@ -324,8 +337,15 @@ export default function ServersPage() {
     const result = await updateServer(editingServer._id, data);
     setLoading(false);
     if ("error" in result && result.error) {
-      throw new Error(result.error);
+      toast.error("Failed to update server", {
+        description: result.error,
+      });
+      return;
     }
+
+    toast.success("Server updated", {
+      description: "",
+    });
     setEditingServer(null);
     loadServers();
   }
@@ -333,17 +353,26 @@ export default function ServersPage() {
   async function handleDelete() {
     if (!deletingServer) return;
     await deleteServer(deletingServer._id);
+      toast.success("Server deleted", {
+        description: "",
+      });
     setDeletingServer(null);
     loadServers();
   }
 
   return (
     <motion.div
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-4"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
     >
+      {successMessage && (
+        <div className="rounded-md border border-emerald-500 bg-emerald-600/90 px-4 py-2 text-sm text-emerald-50 shadow-sm">
+          {successMessage}
+        </div>
+      )}
+
       {/* Header */}
       <motion.div
         className="flex items-center justify-between"
@@ -440,9 +469,13 @@ export default function ServersPage() {
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="text-muted-foreground">Server</TableHead>
-              <TableHead className="text-muted-foreground">IP Address</TableHead>
+              <TableHead className="text-muted-foreground">
+                IP Address
+              </TableHead>
               <TableHead className="text-muted-foreground">Role</TableHead>
-              <TableHead className="text-muted-foreground">Environment</TableHead>
+              <TableHead className="text-muted-foreground">
+                Environment
+              </TableHead>
               <TableHead className="text-muted-foreground">Status</TableHead>
               <TableHead className="text-muted-foreground">OS</TableHead>
               <TableHead className="text-muted-foreground">Location</TableHead>
@@ -475,7 +508,6 @@ export default function ServersPage() {
                   >
                     <ServerIcon className="h-8 w-8 text-muted-foreground/50" />
                     <p>No servers found</p>
-                    
                   </motion.div>
                 </TableCell>
               </TableRow>
@@ -554,7 +586,11 @@ export default function ServersPage() {
                     >
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                             <span className="sr-only">Open menu</span>
                           </Button>

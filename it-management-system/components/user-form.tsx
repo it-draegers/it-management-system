@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import type { User } from "@/lib/actions/users";
 import { AssignUserDialog } from "@/components/assign-user-dialogue";
 import { assignAsset, unassignAsset } from "@/lib/actions/assets";
+import { toast } from "sonner";
+import { UserAssetsCard } from "./UserAssetsCard";
 
 interface UserFormProps {
   user?: User | null;
@@ -111,6 +113,10 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
         phone: (formData.get("phone") as string) || "",
         status: (formData.get("status") as "active" | "inactive") || "active",
         employeeId: (formData.get("employeeId") as string) || "",
+      });
+      toast.success(user?.firstName ? `${user.firstName} user information updated` : `${user?.firstName || "User"} created`, {
+              description: "",
+
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -269,21 +275,7 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
                     <Badge variant="outline" className="text-xs">
                       {asset.name}
                     </Badge>
-                    <button
-                      type="button"
-                      className="text-red-500 hover:text-red-700"
-                      onClick={async () => {
-                        try {
-                          await unassignAsset(asset._id);
-                          router.refresh();
-                        } catch (err) {
-                          console.error(err);
-                          setError("Failed to unassign asset");
-                        }
-                      }}
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
+           
                   </div>
                 ))}
               </div>
@@ -297,7 +289,7 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
               type="button"
               variant="outline"
               className="mt-2 w-max cursor-pointer"
-              onClick={() => setAssignDialogOpen(true)}
+              onClick={() => router.push(`/dashboard/users/${user._id}`)}
             >
               {assignedAssets.length > 0
                 ? "Assign / Reassign Asset"
@@ -330,15 +322,7 @@ export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
       </div>
 
       {/* Assign asset dialog (choose asset for this user) */}
-      {user && (
-        <AssignUserDialog
-          open={assignDialogOpen}
-          onOpenChange={setAssignDialogOpen}
-          userName={`${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()}
-          onAssign={handleAssign}
-        />
-      )}
-
+      
       {/* Footer buttons */}
       <div className="flex justify-end gap-3 pt-2">
         <Button

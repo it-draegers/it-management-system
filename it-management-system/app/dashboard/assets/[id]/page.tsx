@@ -51,6 +51,7 @@ const statusColors: Record<string, string> = {
   GeneralUse: "border-primary/30 bg-primary/10 text-primary",
 };
 
+
 export default async function AssetDetailPage({
   params,
 }: {

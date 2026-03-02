@@ -43,6 +43,7 @@ import { AssetAssignmentCard } from "@/components/asset-assignment-card";
 import { DeleteAssetButton } from "@/components/ui/DeleteAssetButton";
 import { getServer } from "@/lib/actions/servers";
 import { DeleteServerButton } from "@/components/ui/DeleteServerButton";
+import { ping } from "@/lib/actions/ping";
 
 const statusColors: Record<string, string> = {
   online: "border-success/30 bg-success/10 text-success",
@@ -66,8 +67,14 @@ export default async function ServerDetailPage({
     notFound();
   }
 
+ 
+    
+
   const { server } = result;
 
+
+
+    
   const programsResult = await getAssetWithPrograms(server._id.toString());
   const programs =
     "programs" in programsResult && Array.isArray(programsResult.programs)
@@ -106,7 +113,7 @@ export default async function ServerDetailPage({
               </CardTitle>
             </div>
             <div className="flex items-center gap-2">
-              <Button asChild variant="default">
+              <Button  asChild variant="default">
                 <Link href={`/dashboard/servers/${id}/edit`}>
                   <Pencil className="h-4 w-4" />
                   <span className="sr-only">Edit server</span>
@@ -116,6 +123,9 @@ export default async function ServerDetailPage({
               <DeleteServerButton assetId={server._id.toString()} />
             </div>
           </CardHeader>
+
+
+          
 
           <CardContent className="flex flex-col gap-6">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -209,3 +219,7 @@ export default async function ServerDetailPage({
     </div>
   );
 }
+function setAlertDialogOpen(arg0: boolean) {
+    throw new Error("Function not implemented.");
+}
+

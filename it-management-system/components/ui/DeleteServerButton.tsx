@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { deleteAsset } from "@/lib/actions/assets";
 import { deleteServer } from "@/lib/actions/servers";
+import { toast } from "sonner";
 
 interface DeleteServerButtonProps {
   assetId: string;
@@ -29,6 +30,10 @@ export function DeleteServerButton({ assetId }: DeleteServerButtonProps) {
 
   async function handleDelete() {
     await deleteServer(assetId);
+    toast.success("Server deleted", {
+              description: "",
+
+    });
     redirect("/dashboard/servers");
   }
 
