@@ -318,7 +318,8 @@ export default function AssetsPage() {
             <SelectItem value="SSF">SSF</SelectItem>
             <SelectItem value="MP">MP</SelectItem>
             <SelectItem value="LA">LA</SelectItem>
-            <SelectItem value="Home">Home</SelectItem>
+            <SelectItem value="Home/Remote">Home/Remote</SelectItem>
+            <SelectItem value="Fog City Foods">Fog City Foods</SelectItem>
           </SelectContent>
         </Select>
 
@@ -384,7 +385,6 @@ export default function AssetsPage() {
                   >
                     <HardDrive className="h-8 w-8 text-muted-foreground/50" />
                     <p>No assets found</p>
-                    
                   </motion.div>
                 </TableCell>
               </TableRow>

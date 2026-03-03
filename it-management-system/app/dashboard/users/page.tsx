@@ -229,7 +229,8 @@ export default function UsersPage() {
             <SelectItem value="SSF">SSF</SelectItem>
             <SelectItem value="MP">MP</SelectItem>
             <SelectItem value="LA">LA</SelectItem>
-            <SelectItem value="Home">Home</SelectItem>
+              <SelectItem value="Home/Remote">Home/Remote</SelectItem>
+              <SelectItem value="Fog City Foods">Fog City Foods</SelectItem>
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>

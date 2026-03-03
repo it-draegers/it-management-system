@@ -35,7 +35,7 @@ interface AssetFormProps {
       | "Server"
       | "Other";
     brand: string;
-    location: "MP" | "LA" | "SSF" | "Home";
+    location: "MP" | "LA" | "SSF" | "Home/Remote" | "Fog City Foods" ;
     model: string;
     serialNumber: string;
     status: "available" | "assigned" | "maintenance" | "retired" | "GeneralUse";
@@ -66,11 +66,12 @@ const departments = [
   "Deli",
   "wine",
   "Gift Baskets",
+ 
 
 ] as const;
 
 type Department = (typeof departments)[number];
-const locations = ["MP", "LA", "SSF", "Home"] as const;
+const locations = ["MP", "LA", "SSF", "Home/Remote","Fog City Foods" ] as const;
 
 const assetTypes = [
   "Desktop",
@@ -146,7 +147,7 @@ export function AssetForm({
         status,
         purchaseDate: (formData.get("purchaseDate") as string) || "",
         location:
-          (formData.get("location") as "MP" | "LA" | "SSF" | "Home") || "MP",
+          (formData.get("location") as "MP" | "LA" | "SSF" | "Home/Remote" | "Fog City Foods" ) || "MP",
         notes: (formData.get("notes") as string) || "",
         customProperties: customProperties.filter((p) => p.key.trim()),
         assignedTo: status === "assigned" ? assignedUserId : null,

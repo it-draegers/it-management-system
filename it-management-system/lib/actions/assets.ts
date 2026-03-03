@@ -5,6 +5,7 @@ import { getCurrentAdmin } from "@/lib/auth";
 import { ObjectId } from "mongodb";
 import { z } from "zod";
 import { de } from "date-fns/locale";
+import { Program } from "./program";
 
 const customPropertySchema = z.object({
   key: z.string().min(1),
@@ -24,7 +25,7 @@ const assetSchema = z.object({
     "Server",
     "Other",
   ]),
-  location: z.enum(["SSF", "MP", "LA", "Home"]),
+  location: z.enum(["SSF", "MP", "LA", "Home/Remote", "Fog City Foods"]),
   brand: z.string().optional().default(""),
   model: z.string().optional().default(""),
   serialNumber: z.string().optional().default(""),
@@ -39,10 +40,11 @@ const assetSchema = z.object({
 });
 
 export type Asset = {
+  programs: Program[];
   _id: string;
   name: string;
   type: string;
-  location: "SSF" | "MP" | "LA" | "Home";
+  location: "SSF" | "MP" | "LA" | "Home/Remote" | "Fog City Foods";
   brand: string;
   model: string;
   serialNumber: string;

@@ -57,7 +57,7 @@ const departments = [
   "Sales",
 ];
 
-const locations = ["MP", "LA", "SSF", "Home/Remote"];
+const locations = ["MP", "LA", "SSF", "Home/Remote","Fog City Foods" ];
 
 export function UserForm({ user, onSubmit, onCancel, loading }: UserFormProps) {
   const router = useRouter();
