@@ -12,6 +12,7 @@ import { Plus, X, MonitorSmartphone, Disc3, Search } from "lucide-react";
 import { redirect } from "next/dist/server/api-utils";
 import { set } from "date-fns";
 import { getAssetWithPrograms } from "@/lib/actions/program";
+import { toast } from "sonner";
 
 export type Program = {
   _id?: string;
@@ -179,9 +180,9 @@ export function ProgramsCard({
 const exists = programList.some(
       (p) => p.name.trim().toLowerCase() === normalizedName.toLowerCase(),
     );
-   
     if (exists) {
       setError("This program is already added to this asset.");
+      toast.error("This program is already added to this asset.");
       return;
     }
     setError("");
@@ -201,6 +202,7 @@ const exists = programList.some(
         ...prev,
         { ...payload, _id: Math.random().toString(36).slice(2) },
       ]);
+      toast.success("Program added successfully");
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -236,6 +238,7 @@ const exists = programList.some(
     if (!onRemoveProgram || !programId) return;
     try {
       await onRemoveProgram(assetId, programId);
+      toast.success("Program removed successfully");
       setProgramList((prev) => prev.filter((p) => p._id !== programId));
     } catch (err) {
       console.error(err);
