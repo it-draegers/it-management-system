@@ -1,3 +1,0 @@
-VERSION="5.9"
-PASSWORD_5.9=BboOalWHidIV7rntdd5pIA==
-PASSWORD_5.8=ruta
