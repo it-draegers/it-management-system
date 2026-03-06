@@ -15,7 +15,60 @@ type MoveFileItemInput = {
   itemId: string;
   targetFolderId: string;
 };
+type RenameFileItemInput = {
+  itemId: string;
+  newName: string;
+};
 
+export async function renameFileItem({
+  itemId,
+  newName,
+}: RenameFileItemInput) {
+  try {
+    const trimmedName = newName.trim();
+
+    if (!trimmedName) {
+      return { error: "Name is required" };
+    }
+
+    const db = await getDb();
+    const collection = db.collection<FileDoc>("files");
+
+    const item = await collection.findOne({ _id: new ObjectId(itemId) });
+
+    if (!item) {
+      return { error: "Item not found" };
+    }
+
+    const duplicate = await collection.findOne({
+      _id: { $ne: item._id },
+      folderId: item.folderId,
+      type: item.type,
+      name: trimmedName,
+    });
+
+    if (duplicate) {
+      return {
+        error: `A ${item.type} with that name already exists in this folder`,
+      };
+    }
+
+    await collection.updateOne(
+      { _id: item._id },
+      {
+        $set: {
+          name: trimmedName,
+        },
+      }
+    );
+
+    revalidatePath("/dashboard/files");
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to rename item" };
+  }
+}
 type FileDoc = {
   _id?: ObjectId;
   name: string;

@@ -13,20 +13,31 @@ import {
   Home,
   Loader2,
   Move,
+  Pencil,
   Trash2,
   Upload,
-  X,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   createFolder,
   deleteFileItem,
   moveFileItem,
+  renameFileItem,
   uploadFile,
 } from "@/lib/actions/files";
+import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialogue";
 
 export type FileItem = {
   _id: string;
@@ -70,16 +81,23 @@ export function FilesPageClient({
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  const [showCreateFolder, setShowCreateFolder] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [moveDialogOpen, setMoveDialogOpen] = useState(false);
+
   const [folderName, setFolderName] = useState("");
   const [creatingFolder, setCreatingFolder] = useState(false);
 
-  const [showUpload, setShowUpload] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadFolderId, setUploadFolderId] = useState<string>(currentFolder);
   const [uploading, setUploading] = useState(false);
 
-  const [movingItemId, setMovingItemId] = useState<string | null>(null);
+  const [renamingItemId, setRenamingItemId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [renaming, setRenaming] = useState(false);
+
+  const [movingItem, setMovingItem] = useState<FileItem | null>(null);
   const [moveTargetFolderId, setMoveTargetFolderId] = useState<string>("root");
   const [moving, setMoving] = useState(false);
 
@@ -88,13 +106,19 @@ export function FilesPageClient({
   }, [initialItems]);
 
   useEffect(() => {
-    setUploadFolderId(currentFolder);
-    setMovingItemId(null);
-    setMoveTargetFolderId("root");
     setSearch("");
-    setShowCreateFolder(false);
-    setShowUpload(false);
+    setFolderName("");
     setSelectedFile(null);
+    setUploadFolderId(currentFolder);
+    setRenamingItemId(null);
+    setRenameValue("");
+    setMovingItem(null);
+    setMoveTargetFolderId("root");
+
+    setCreateDialogOpen(false);
+    setUploadDialogOpen(false);
+    setRenameDialogOpen(false);
+    setMoveDialogOpen(false);
   }, [currentFolder]);
 
   const filteredItems = useMemo(() => {
@@ -122,14 +146,14 @@ export function FilesPageClient({
 
   function getFileIcon(item: FileItem) {
     if (item.type === "folder") {
-      return <Folder className="h-4 w-4 text-yellow-500" />;
+      return <Folder className="h-5 w-5 text-yellow-500" />;
     }
 
     if (item.mimeType?.includes("pdf")) {
-      return <FileText className="h-4 w-4 text-red-500" />;
+      return <FileText className="h-5 w-5 text-red-500" />;
     }
 
-    return <File className="h-4 w-4 text-muted-foreground" />;
+    return <File className="h-5 w-5 text-muted-foreground" />;
   }
 
   async function handleCreateFolder() {
@@ -153,7 +177,7 @@ export function FilesPageClient({
 
       toast.success("Folder created");
       setFolderName("");
-      setShowCreateFolder(false);
+      setCreateDialogOpen(false);
       refreshPage();
     } catch (error) {
       console.error(error);
@@ -185,8 +209,8 @@ export function FilesPageClient({
 
       toast.success("File uploaded");
       setSelectedFile(null);
-      setShowUpload(false);
       setUploadFolderId(currentFolder);
+      setUploadDialogOpen(false);
 
       const input = document.getElementById(
         "file-upload"
@@ -202,15 +226,76 @@ export function FilesPageClient({
     }
   }
 
-  async function handleDelete(item: FileItem) {
-    const confirmed = window.confirm(
-      item.type === "folder"
-        ? `Delete folder "${item.name}" and everything inside it?`
-        : `Delete file "${item.name}"?`
-    );
+  async function handleRename() {
+    if (!renamingItemId) {
+      toast.error("Item not found");
+      return;
+    }
 
-    if (!confirmed) return;
+    if (!renameValue.trim()) {
+      toast.error("Please enter a name");
+      return;
+    }
 
+    try {
+      setRenaming(true);
+
+      const result = await renameFileItem({
+        itemId: renamingItemId,
+        newName: renameValue.trim(),
+      });
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success("Name updated");
+      setRenameDialogOpen(false);
+      setRenamingItemId(null);
+      setRenameValue("");
+      refreshPage();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to rename item");
+    } finally {
+      setRenaming(false);
+    }
+  }
+
+  async function handleMove() {
+    if (!movingItem) {
+      toast.error("Item not found");
+      return;
+    }
+
+    try {
+      setMoving(true);
+
+      const result = await moveFileItem({
+        itemId: movingItem._id,
+        targetFolderId: moveTargetFolderId,
+      });
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success(`${movingItem.type === "folder" ? "Folder" : "File"} moved`);
+      setMoveDialogOpen(false);
+      setMovingItem(null);
+      setMoveTargetFolderId("root");
+      refreshPage();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to move item");
+    } finally {
+      setMoving(false);
+    }
+  }
+
+  async function handleDeleteConfirmed(item: FileItem) {
     try {
       const result = await deleteFileItem(item._id);
 
@@ -228,34 +313,20 @@ export function FilesPageClient({
     }
   }
 
-  async function handleMove(item: FileItem) {
-    try {
-      setMoving(true);
-
-      const result = await moveFileItem({
-        itemId: item._id,
-        targetFolderId: moveTargetFolderId,
-      });
-
-      if (result.error) {
-        toast.error(result.error);
-        return;
-      }
-
-      toast.success(`${item.type === "folder" ? "Folder" : "File"} moved`);
-      setMovingItemId(null);
-      setMoveTargetFolderId("root");
-      refreshPage();
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to move item");
-    } finally {
-      setMoving(false);
-    }
+  function openRenameDialog(item: FileItem) {
+    setRenamingItemId(item._id);
+    setRenameValue(item.name);
+    setRenameDialogOpen(true);
   }
 
-  function closeUploadBox() {
-    setShowUpload(false);
+  function openMoveDialog(item: FileItem) {
+    setMovingItem(item);
+    setMoveTargetFolderId(item.folderId ?? "root");
+    setMoveDialogOpen(true);
+  }
+
+  function closeUploadDialog() {
+    setUploadDialogOpen(false);
     setSelectedFile(null);
     setUploadFolderId(currentFolder);
 
@@ -265,83 +336,95 @@ export function FilesPageClient({
     if (input) input.value = "";
   }
 
-  function closeCreateFolderBox() {
-    setShowCreateFolder(false);
+  function closeCreateDialog() {
+    setCreateDialogOpen(false);
     setFolderName("");
   }
 
+  function closeRenameDialog() {
+    setRenameDialogOpen(false);
+    setRenamingItemId(null);
+    setRenameValue("");
+  }
+
+  function closeMoveDialog() {
+    setMoveDialogOpen(false);
+    setMovingItem(null);
+    setMoveTargetFolderId("root");
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="flex-1 space-y-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
         <p className="text-sm text-muted-foreground">
-          Upload files, create folders, move items, download files, and organize everything.
+          Upload files, create folders, rename items, move items, and organize
+          everything.
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-        <Link
-          href="/dashboard/files"
-          className="font-medium hover:text-foreground"
-        >
-          <Home className="mr-1 h-5 w-5" />
-        </Link>
-
-        {breadcrumbs.map((crumb) => (
-          <div key={crumb._id} className="flex items-center gap-2">
-            <ChevronRight className="h-4 w-4" />
-            <Link
-              href={`/dashboard/files?folder=${crumb._id}`}
-              className="hover:text-foreground"
-            >
-              {crumb.name}
-            </Link>
-          </div>
-        ))}
-      </div>
-
-      <div className="rounded-2xl border bg-background p-4 shadow-sm space-y-4">
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            className="cursor-pointer"
-            onClick={() => {
-              setShowCreateFolder((prev) => !prev);
-              if (!showCreateFolder) {
-                setShowUpload(false);
-              }
-            }}
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <Link
+            href="/dashboard/files"
+            className="font-medium hover:text-foreground"
           >
-            <FolderPlus className="mr-2 h-4 w-4" />
-            {showCreateFolder ? "Close Folder" : "Create Folder"}
-          </Button>
+            <Home className="h-5 w-5" />
+          </Link>
 
-          <Button
-            type="button"
-            variant="outline"
-            className="cursor-pointer"
-            onClick={() => {
-              setShowUpload((prev) => !prev);
-              if (!showUpload) {
-                setShowCreateFolder(false);
-              }
-            }}
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            {showUpload ? "Close Upload" : "Upload File"}
-          </Button>
+          {breadcrumbs.map((crumb) => (
+            <div key={crumb._id} className="flex items-center gap-2">
+              <ChevronRight className="h-4 w-4" />
+              <Link
+                href={`/dashboard/files?folder=${crumb._id}`}
+                className="hover:text-foreground"
+              >
+                {crumb.name}
+              </Link>
+            </div>
+          ))}
         </div>
 
-        {showCreateFolder && (
-          <div className="rounded-xl border bg-muted/30 p-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Folder Name</label>
-              <div className="flex flex-col gap-2 md:flex-row">
+        <div className="flex shrink-0 flex-wrap justify-end gap-2">
+          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button type="button" className="cursor-pointer">
+                <FolderPlus className="mr-2 h-4 w-4" />
+                Create Folder
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create Folder</DialogTitle>
+                <DialogDescription>
+                  Create a new folder inside this location.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Folder Name</label>
                 <Input
                   value={folderName}
                   onChange={(e) => setFolderName(e.target.value)}
                   placeholder="Enter folder name"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleCreateFolder();
+                    }
+                  }}
                 />
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="cursor-pointer"
+                  onClick={closeCreateDialog}
+                >
+                  Cancel
+                </Button>
                 <Button
                   type="button"
                   onClick={handleCreateFolder}
@@ -353,55 +436,68 @@ export function FilesPageClient({
                   ) : (
                     <FolderPlus className="mr-2 h-4 w-4" />
                   )}
-                  Save
+                  Create
                 </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+            <DialogTrigger asChild>
+              <Button type="button" variant="outline" className="cursor-pointer">
+                <Upload className="mr-2 h-4 w-4" />
+                Upload File
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Upload File</DialogTitle>
+                <DialogDescription>
+                  Choose a file and select where to upload it.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Choose File</label>
+                  <Input
+                    id="file-upload"
+                    type="file"
+                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Upload To</label>
+                  <select
+                    value={uploadFolderId}
+                    onChange={(e) => setUploadFolderId(e.target.value)}
+                    className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="root">Root</option>
+                    {allFolders.map((folder) => (
+                      <option key={folder._id} value={folder._id}>
+                        {folder.fullPath}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <DialogFooter>
                 <Button
                   type="button"
                   variant="outline"
                   className="cursor-pointer"
-                  onClick={closeCreateFolderBox}
+                  onClick={closeUploadDialog}
                 >
                   Cancel
                 </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {showUpload && (
-          <div className="rounded-xl border bg-muted/30 p-4">
-            <div className="grid gap-3 md:grid-cols-[1fr_220px_auto_auto]">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Choose File</label>
-                <Input
-                  id="file-upload"
-                  type="file"
-                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Upload To</label>
-                <select
-                  value={uploadFolderId}
-                  onChange={(e) => setUploadFolderId(e.target.value)}
-                  className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm"
-                >
-                  <option value="root">Root</option>
-                  {allFolders.map((folder) => (
-                    <option key={folder._id} value={folder._id}>
-                      {folder.fullPath}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex items-end">
                 <Button
                   type="button"
                   onClick={handleUpload}
                   disabled={uploading}
-                  className="cursor-pointer w-full md:w-auto"
+                  className="cursor-pointer"
                 >
                   {uploading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -410,21 +506,10 @@ export function FilesPageClient({
                   )}
                   Upload
                 </Button>
-              </div>
-
-              <div className="flex items-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="cursor-pointer w-full md:w-auto"
-                  onClick={closeUploadBox}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="flex items-center justify-between gap-4">
@@ -436,10 +521,8 @@ export function FilesPageClient({
         />
       </div>
 
-      <div className="rounded-2xl border bg-background shadow-sm overflow-hidden">
-        <div className="border-b px-6 py-4">
-          <h2 className="text-lg font-semibold">File Manager</h2>
-        </div>
+      <div className="overflow-hidden rounded-2xl border ">
+        
 
         {filteredItems.length === 0 ? (
           <div className="px-6 py-10 text-sm text-muted-foreground">
@@ -483,33 +566,14 @@ export function FilesPageClient({
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    {item.type === "folder" ? (
-                      <Link
-                        href={`/dashboard/files?folder=${item._id}`}
+                    {item.type !== "folder" && (
+                      <a
+                        href={item.path}
+                        download={item.name}
                         className="inline-flex h-9 items-center rounded-md border px-3 text-sm hover:bg-muted"
                       >
-                        Open
-                      </Link>
-                    ) : (
-                      <>
-                        <a
-                          href={item.path}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex h-9 items-center rounded-md border px-3 text-sm hover:bg-muted"
-                        >
-                          View
-                        </a>
-
-                        <a
-                          href={item.path}
-                          download={item.name}
-                          className="inline-flex h-9 items-center rounded-md border px-3 text-sm hover:bg-muted"
-                        >
-                          <Download className="mr-2 h-4 w-4" />
-                          Download
-                        </a>
-                      </>
+                        <Download className="mr-2 h-4 w-4" />
+                      </a>
                     )}
 
                     <Button
@@ -517,82 +581,150 @@ export function FilesPageClient({
                       variant="outline"
                       size="sm"
                       className="cursor-pointer"
-                      onClick={() => {
-                        setMovingItemId((prev) =>
-                          prev === item._id ? null : item._id
-                        );
-                        setMoveTargetFolderId(item.folderId ?? "root");
-                      }}
+                      onClick={() => openRenameDialog(item)}
                     >
-                      <Move className="mr-2 h-4 w-4" />
-                      Move
+                      <Pencil className="mr-2 h-4 w-4" />
                     </Button>
 
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="cursor-pointer text-red-600 hover:text-red-700"
-                      onClick={() => handleDelete(item)}
+                      className="cursor-pointer"
+                      onClick={() => openMoveDialog(item)}
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
+                      <Move className="mr-2 h-4 w-4" />
+                      Move
                     </Button>
-                  </div>
-                </div>
 
-                {movingItemId === item._id && (
-                  <div className="mt-4 rounded-lg border bg-muted/30 p-4">
-                    <div className="grid gap-3 md:grid-cols-[1fr_auto_auto]">
-                      <select
-                        value={moveTargetFolderId}
-                        onChange={(e) => setMoveTargetFolderId(e.target.value)}
-                        className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm"
-                      >
-                        <option value="root">Root</option>
-                        {allFolders
-                          .filter((folder) => folder._id !== item._id)
-                          .map((folder) => (
-                            <option key={folder._id} value={folder._id}>
-                              {folder.fullPath}
-                            </option>
-                          ))}
-                      </select>
-
-                      <Button
-                        type="button"
-                        onClick={() => handleMove(item)}
-                        disabled={moving}
-                        className="cursor-pointer"
-                      >
-                        {moving ? (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                          <Move className="mr-2 h-4 w-4" />
-                        )}
-                        Save Move
-                      </Button>
-
+                    <DeleteConfirmDialog
+                      title={`Delete ${item.type}`}
+                      description={
+                        item.type === "folder"
+                          ? `Are you sure you want to delete "${item.name}"? Everything inside this folder will also be deleted.`
+                          : `Are you sure you want to delete "${item.name}"?`
+                      }
+                      onConfirm={() => handleDeleteConfirmed(item)}
+                    >
                       <Button
                         type="button"
                         variant="outline"
-                        className="cursor-pointer"
-                        onClick={() => {
-                          setMovingItemId(null);
-                          setMoveTargetFolderId("root");
-                        }}
+                        size="sm"
+                        className="cursor-pointer text-red-600 hover:text-red-700"
                       >
-                        <X className="mr-2 h-4 w-4" />
-                        Cancel
+                        <Trash2 className="mr-2 h-4 w-4" />
                       </Button>
-                    </div>
+                    </DeleteConfirmDialog>
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename Item</DialogTitle>
+            <DialogDescription>
+              Update the name of this file or folder.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Name</label>
+            <Input
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              placeholder="Enter new name"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleRename();
+                }
+              }}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              className="cursor-pointer"
+              onClick={closeRenameDialog}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleRename}
+              disabled={renaming}
+              className="cursor-pointer"
+            >
+              {renaming ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Pencil className="mr-2 h-4 w-4" />
+              )}
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={moveDialogOpen} onOpenChange={setMoveDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Move Item</DialogTitle>
+            <DialogDescription>
+              Choose the folder you want to move this item into.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Move To</label>
+            <select
+              value={moveTargetFolderId}
+              onChange={(e) => setMoveTargetFolderId(e.target.value)}
+              className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm"
+            >
+              <option value="root">Root</option>
+              {allFolders
+                .filter((folder) => folder._id !== movingItem?._id)
+                .map((folder) => (
+                  <option key={folder._id} value={folder._id}>
+                    {folder.fullPath}
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              className="cursor-pointer"
+              onClick={closeMoveDialog}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleMove}
+              disabled={moving}
+              className="cursor-pointer"
+            >
+              {moving ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Move className="mr-2 h-4 w-4" />
+              )}
+              Move
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {isPending && (
         <div className="text-sm text-muted-foreground">Refreshing...</div>
