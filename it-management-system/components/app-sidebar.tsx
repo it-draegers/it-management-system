@@ -34,7 +34,7 @@ import {
 } from "lucide-react";
 import { getTaskCount } from "@/lib/actions/tasks";
 import { useEffect, useState } from "react";
-
+import { FolderOpen } from "lucide-react";
 const navItems = [
   {
     title: "Dashboard",
@@ -60,7 +60,12 @@ const navItems = [
     title: "Tasks",
     url: "/dashboard/tasks",
     icon: ListCheck,
-  }
+  },
+  {
+  title: "Documents",
+  url: "/dashboard/files",
+  icon: FolderOpen,
+}
 ];
 
 interface AppSidebarProps {
