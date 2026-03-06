@@ -115,7 +115,7 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
       >
         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
         <p className="text-sm text-muted-foreground">
-          Overview of your IT infrastructure
+          Overview of IT infrastructure
         </p>
       </motion.div>
 
