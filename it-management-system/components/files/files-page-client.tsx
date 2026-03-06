@@ -202,23 +202,32 @@ export function FilesPageClient({
     }
   }
 
- async function handleDeleteConfirmed(item: FileItem) {
-  try {
-    const result = await deleteFileItem(item._id);
+  async function handleDelete(item: FileItem) {
+    const confirmed = window.confirm(
+      item.type === "folder"
+        ? `Delete folder "${item.name}" and everything inside it?`
+        : `Delete file "${item.name}"?`
+    );
 
-    if (result.error) {
-      toast.error(result.error);
-      return;
+    if (!confirmed) return;
+
+    try {
+      const result = await deleteFileItem(item._id);
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success(item.type === "folder" ? "Folder deleted" : "File deleted");
+      setItems((prev) => prev.filter((x) => x._id !== item._id));
+      refreshPage();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete item");
     }
-
-    toast.success(item.type === "folder" ? "Folder deleted" : "File deleted");
-    setItems((prev) => prev.filter((x) => x._id !== item._id));
-    refreshPage();
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to delete item");
   }
-}
+
   async function handleMove(item: FileItem) {
     try {
       setMoving(true);
