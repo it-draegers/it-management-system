@@ -55,6 +55,7 @@ const departments = [
   "Deli",
   "Loss Prevention",
   "Sales",
+  "Fog City Foods",
 ];
 
 const locations = ["MP", "LA", "SSF", "Home/Remote","Fog City Foods" ];

@@ -78,6 +78,7 @@ export async function getAssets(params?: {
       { serialNumber: { $regex: params.search, $options: "i" } },
       { brand: { $regex: params.search, $options: "i" } },
       { model: { $regex: params.search, $options: "i" } },
+      { notes: { $regex: params.search, $options: "i" } },
     ];
   }
 

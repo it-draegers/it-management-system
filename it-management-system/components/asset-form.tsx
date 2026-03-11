@@ -66,6 +66,7 @@ const departments = [
   "Deli",
   "wine",
   "Gift Baskets",
+  "Fog City Foods",
  
 
 ] as const;

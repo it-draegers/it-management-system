@@ -108,12 +108,14 @@ export default function AssetsPage() {
     const location = searchParams.get("location");
     const type = searchParams.get("type");
     const q = searchParams.get("q");
+    const notes = searchParams.get("notes");
 
     if (status) setStatusFilter(status);
     if (department) setDeptFilter(department);
     if (location) setLocationFilter(location);
     if (type) setTypeFilter(type);
     if (q) setSearch(q);
+    if(notes) setSearch(notes);
   }, []);
 
   const loadAssets = useCallback(async () => {
