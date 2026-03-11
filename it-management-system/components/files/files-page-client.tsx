@@ -8,6 +8,7 @@ import {
   Download,
   File,
   FileText,
+  FileSpreadsheet,
   Folder,
   FolderPlus,
   Home,
@@ -153,6 +154,16 @@ export function FilesPageClient({
       return <FileText className="h-5 w-5 text-red-500" />;
     }
 
+    if (
+      item.mimeType?.includes(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ) ||
+      item.mimeType?.includes("application/vnd.ms-excel") ||
+      item.name.toLowerCase().endsWith(".csv")
+    ) {
+      return <FileSpreadsheet className="h-5 w-5 text-green-500" />;
+    }
+
     return <File className="h-5 w-5 text-muted-foreground" />;
   }
 
@@ -193,9 +204,19 @@ export function FilesPageClient({
       return;
     }
 
+    const allowedTypes = [
+      "text/csv",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+    ];
+
+    if (!allowedTypes.includes(selectedFile.type)) {
+      toast.error("Only CSV and Excel files are allowed");
+      return;
+    }
+
     try {
       setUploading(true);
-
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("folderId", uploadFolderId || "root");
@@ -463,6 +484,7 @@ export function FilesPageClient({
                   <Input
                     id="file-upload"
                     type="file"
+                    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
                     onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
                   />
                 </div>
@@ -522,8 +544,6 @@ export function FilesPageClient({
       </div>
 
       <div className="overflow-hidden rounded-2xl border ">
-        
-
         {filteredItems.length === 0 ? (
           <div className="px-6 py-10 text-sm text-muted-foreground">
             No files or folders found.
