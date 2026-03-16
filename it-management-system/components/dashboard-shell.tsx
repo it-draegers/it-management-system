@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 
 import { StatsCards } from "@/components/stats-cards";
@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, HardDrive } from "lucide-react";
+import { Users, HardDrive, Search } from "lucide-react";
 
 type DashboardStats = {
   totalUsers: number;
@@ -36,39 +36,15 @@ type DashboardStats = {
   }[];
 };
 
-const floatLeft = {
-  initial: { y: 0 },
-  animate: {
-    y: [0, -5, 0],
-    transition: {
-      duration: 6,
-      repeat: Infinity,
-      repeatType: "mirror" as const,
-      ease: "easeInOut",
-    },
-  },
-};
-
-const floatRight = {
-  initial: { y: 0 },
-  animate: {
-    y: [0, -5, 0],
-    transition: {
-      duration: 6,
-      repeat: Infinity,
-      repeatType: "mirror" as const,
-      ease: "easeInOut",
-      delay: 1.5,
-    },
-  },
-};
-
 interface DashboardShellProps {
   stats: DashboardStats;
 }
 
 export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
   const [stats, setStats] = useState<DashboardStats>(initialStats);
+  const [search, setSearch] = useState("");
+
+  const isSearching = search.trim().length > 0;
 
   useEffect(() => {
     let isMounted = true;
@@ -79,8 +55,11 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
           method: "GET",
           cache: "no-store",
         });
+
         if (!res.ok) return;
+
         const data = await res.json();
+
         if (isMounted && data.stats) {
           setStats(data.stats as DashboardStats);
         }
@@ -91,259 +70,221 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
 
     fetchStats();
 
-    const intervalId = setInterval(fetchStats, 10_000); 
+    const interval = setInterval(fetchStats, 10000);
 
     return () => {
       isMounted = false;
-      clearInterval(intervalId);
+      clearInterval(interval);
     };
   }, []);
+
+  const filteredUsers = stats.recentUsers.filter((user) => {
+    const q = search.toLowerCase();
+
+    return (
+      user.firstName?.toLowerCase().includes(q) ||
+      user.lastName?.toLowerCase().includes(q) ||
+      user.email?.toLowerCase().includes(q) ||
+      user.department?.toLowerCase().includes(q)
+    );
+  });
+
+  const filteredAssets = stats.recentAssets.filter((asset) => {
+    const q = search.toLowerCase();
+
+    return (
+      asset.name?.toLowerCase().includes(q) ||
+      asset.type?.toLowerCase().includes(q) ||
+      asset.brand?.toLowerCase().includes(q) ||
+      asset.status?.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <motion.div
       className="flex flex-col gap-6"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
     >
-      {/* Header */}
-      <motion.div
-        className="flex flex-col gap-1"
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, delay: 0.05 }}
-      >
-        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+      {/* HEADER */}
+      <div className="flex flex-col gap-2">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+
         <p className="text-sm text-muted-foreground">
           Overview of IT infrastructure
         </p>
-      </motion.div>
 
-      {/* Stats cards */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 6 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.25, delay: 0.12 }}
-      >
-        <StatsCards
-          totalUsers={stats.totalUsers}
-          totalAssets={stats.totalAssets}
-          assignedAssets={stats.assignedAssets}
-        />
-      </motion.div>
+        {/* SEARCH */}
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 
-      {/* Floating cards grid */}
-      <motion.div
-        className="grid gap-6 md:grid-cols-2"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: { opacity: 0, y: 6 },
-          visible: {
-            opacity: 1,
-            y: 0,
-            transition: { staggerChildren: 0.1 },
-          },
-        }}
-      >
-        {/* Recent Users */}
-        <motion.div
-          variants={{
-            hidden: { opacity: 0, y: 12 },
-            visible: { opacity: 1, y: 0 },
-          }}
-        >
-          <motion.div
-            variants={floatLeft}
-            initial="initial"
-            animate="animate"
-            whileHover={{
-              scale: 1.02,
-              y: -2,
-              boxShadow: "0 18px 40px rgba(0,0,0,0.18)",
-              transition: {
-                duration: 0.22,
-                ease: "easeOut",
-              },
-            }}
-            className="transition-transform"
-          >
-            <Card className="border-border overflow-hidden backdrop-blur-sm bg-background/90">
-              <CardHeader className="border-b border-border/60 bg-muted/40">
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <CardTitle className="text-base font-semibold text-foreground">
-                    Recent Users
-                  </CardTitle>
-                </div>
-                <CardDescription>
-                  Latest users added to the system
-                </CardDescription>
+          <input
+            type="text"
+            placeholder="Search users or assets..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg border border-border bg-background pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+          />
+        </div>
+      </div>
+
+      {/* NORMAL DASHBOARD */}
+      {!isSearching && (
+        <>
+          <StatsCards
+            totalUsers={stats.totalUsers}
+            totalAssets={stats.totalAssets}
+            assignedAssets={stats.assignedAssets}
+          />
+
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* RECENT USERS */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Users</CardTitle>
+                <CardDescription>Latest users added</CardDescription>
               </CardHeader>
-              <CardContent className="pt-4">
-                {stats.recentUsers.length === 0 ? (
-                  <motion.p
-                    className="text-sm text-muted-foreground"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+
+              <CardContent className="flex flex-col gap-3">
+                {stats.recentUsers.map((user) => (
+                  <Link
+                    key={user._id}
+                    href={`/dashboard/users/${user._id}`}
+                    className="flex justify-between rounded-lg border p-3 hover:bg-muted/70"
                   >
-                    No users added yet
-                  </motion.p>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    <AnimatePresence initial={false}>
-                      {stats.recentUsers.map((user, idx) => (
-                        <motion.div
-                          key={user._id}
-                          initial={{ opacity: 0, x: -8 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: -6 }}
-                          transition={{
-                            duration: 0.2,
-                            delay: idx * 0.05,
-                          }}
-                        >
-                          <Link
-                            href={`/dashboard/users/${user._id}`}
-                            className="flex items-center justify-between rounded-lg border border-border/70 p-3 cursor-pointer bg-background/60 hover:bg-muted/80 transition-colors"
-                          >
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-foreground">
-                                {user.firstName} {user.lastName}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                {user.email}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Badge
-                                variant={
-                                  user.status === "active"
-                                    ? "default"
-                                    : "secondary"
-                                }
-                                className={
-                                  user.status === "active"
-                                    ? "bg-success/10 text-success hover:bg-success/20"
-                                    : ""
-                                }
-                              >
-                                {user.status ?? "unknown"}
-                              </Badge>
-                              {user.department && (
-                                <Badge variant="outline" className="text-xs">
-                                  {user.department}
-                                </Badge>
-                              )}
-                            </div>
-                          </Link>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </div>
-                )}
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">
+                        {user.firstName} {user.lastName}
+                      </span>
+
+                      <span className="text-xs text-muted-foreground">
+                        {user.email}
+                      </span>
+                    </div>
+
+                    <Badge>{user.status ?? "unknown"}</Badge>
+                  </Link>
+                ))}
               </CardContent>
             </Card>
-          </motion.div>
-        </motion.div>
 
-        {/* Recent Assets */}
-        <motion.div
-          variants={{
-            hidden: { opacity: 0, y: 12 },
-            visible: { opacity: 1, y: 0 },
-          }}
-        >
-          <motion.div
-            variants={floatRight}
-            initial="initial"
-            animate="animate"
-            whileHover={{
-              scale: 1.02,
-              y: -2,
-              boxShadow: "0 18px 40px rgba(0,0,0,0.18)",
-              transition: {
-                duration: 0.22,
-                ease: "easeOut",
-              },
-            }}
-            className="transition-transform"
-          >
-            <Card className="border-border overflow-hidden backdrop-blur-sm bg-background/90">
-              <CardHeader className="border-b border-border/60 bg-muted/40">
-                <div className="flex items-center gap-2">
-                  <HardDrive className="h-4 w-4 text-muted-foreground" />
-                  <CardTitle className="text-base font-semibold text-foreground">
-                    Recent Assets
-                  </CardTitle>
-                </div>
-                <CardDescription>
-                  Latest equipment added to inventory
-                </CardDescription>
+            {/* RECENT ASSETS */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Assets</CardTitle>
+                <CardDescription>Latest assets added</CardDescription>
               </CardHeader>
-              <CardContent className="pt-4">
-                {stats.recentAssets.length === 0 ? (
-                  <motion.p
-                    className="text-sm text-muted-foreground"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+
+              <CardContent className="flex flex-col gap-3">
+                {stats.recentAssets.map((asset) => (
+                  <Link
+                    key={asset._id}
+                    href={`/dashboard/assets/${asset._id}`}
+                    className="flex justify-between rounded-lg border p-3 hover:bg-muted/70"
                   >
-                    No assets added yet
-                  </motion.p>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    <AnimatePresence initial={false}>
-                      {stats.recentAssets.map((asset, idx) => (
-                        <motion.div
-                          key={asset._id}
-                          initial={{ opacity: 0, x: 8 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: 6 }}
-                          transition={{
-                            duration: 0.2,
-                            delay: idx * 0.05,
-                          }}
-                        >
-                          <Link
-                            href={`/dashboard/assets/${asset._id}`}
-                            className="flex items-center justify-between rounded-lg border border-border/70 p-3 cursor-pointer bg-background/60 hover:bg-muted/80 transition-colors"
-                          >
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-foreground">
-                                {asset.name ?? "Unnamed asset"}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                {asset.type ?? "Unknown type"}
-                                {asset.brand ? ` - ${asset.brand}` : ""}
-                              </span>
-                            </div>
-                            <Badge
-                              variant="outline"
-                              className={
-                                asset.status === "available"
-                                  ? "border-success/30 bg-success/10 text-success"
-                                  : asset.status === "assigned"
-                                  ? "border-primary/30 bg-primary/10 text-primary"
-                                  : asset.status === "maintenance"
-                                  ? "border-warning/30 bg-warning/10 text-warning"
-                                  : asset.status === "GeneralUse"
-                                  ? "border-primary/30 bg-primary/10 text-primary"
-                                  : "border-destructive/30 bg-destructive/10 text-destructive"
-                              }
-                            >
-                              {asset.status ?? "unknown"}
-                            </Badge>
-                          </Link>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </div>
-                )}
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">
+                        {asset.name ?? "Unnamed asset"}
+                      </span>
+
+                      <span className="text-xs text-muted-foreground">
+                        {asset.type ?? "Unknown type"}
+                      </span>
+                    </div>
+
+                    <Badge variant="outline">
+                      {asset.status ?? "unknown"}
+                    </Badge>
+                  </Link>
+                ))}
               </CardContent>
             </Card>
-          </motion.div>
-        </motion.div>
-      </motion.div>
+          </div>
+        </>
+      )}
+
+      {/* SEARCH RESULTS */}
+      {isSearching && (
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* USERS */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <CardTitle>Users</CardTitle>
+              </div>
+            </CardHeader>
+
+            <CardContent className="flex flex-col gap-3">
+              {filteredUsers.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No matching users
+                </p>
+              ) : (
+                filteredUsers.map((user) => (
+                  <Link
+                    key={user._id}
+                    href={`/dashboard/users/${user._id}`}
+                    className="flex justify-between rounded-lg border p-3 hover:bg-muted/70"
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">
+                        {user.firstName} {user.lastName}
+                      </span>
+
+                      <span className="text-xs text-muted-foreground">
+                        {user.email}
+                      </span>
+                    </div>
+
+                    <Badge>{user.status ?? "unknown"}</Badge>
+                  </Link>
+                ))
+              )}
+            </CardContent>
+          </Card>
+
+          {/* ASSETS */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <HardDrive className="h-4 w-4" />
+                <CardTitle>Assets</CardTitle>
+              </div>
+            </CardHeader>
+
+            <CardContent className="flex flex-col gap-3">
+              {filteredAssets.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No matching assets
+                </p>
+              ) : (
+                filteredAssets.map((asset) => (
+                  <Link
+                    key={asset._id}
+                    href={`/dashboard/assets/${asset._id}`}
+                    className="flex justify-between rounded-lg border p-3 hover:bg-muted/70"
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">
+                        {asset.name ?? "Unnamed asset"}
+                      </span>
+
+                      <span className="text-xs text-muted-foreground">
+                        {asset.type ?? "Unknown type"}
+                      </span>
+                    </div>
+
+                    <Badge variant="outline">
+                      {asset.status ?? "unknown"}
+                    </Badge>
+                  </Link>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </motion.div>
   );
 }
