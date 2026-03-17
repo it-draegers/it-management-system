@@ -222,7 +222,6 @@ export async function deleteUser(id: string) {
 
   const db = await getDb()
 
-  // Unassign any assets assigned to this user
   await db
     .collection("assets")
     .updateMany(

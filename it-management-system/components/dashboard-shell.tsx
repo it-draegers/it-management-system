@@ -13,27 +13,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+
 import { Users, HardDrive, Search } from "lucide-react";
 
 type DashboardStats = {
   totalUsers: number;
   totalAssets: number;
   assignedAssets: number;
-  recentUsers: {
-    _id: string;
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    department?: string;
-    status?: string;
-  }[];
-  recentAssets: {
-    _id: string;
-    name?: string;
-    type?: string;
-    status?: string;
-    brand?: string;
-  }[];
+  recentUsers: any[];
+  recentAssets: any[];
 };
 
 interface DashboardShellProps {
@@ -41,8 +29,13 @@ interface DashboardShellProps {
 }
 
 export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
-  const [stats, setStats] = useState<DashboardStats>(initialStats);
+  const [stats, setStats] = useState(initialStats);
   const [search, setSearch] = useState("");
+
+  const [results, setResults] = useState({
+    users: [],
+    assets: [],
+  });
 
   const isSearching = search.trim().length > 0;
 
@@ -52,7 +45,6 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
     async function fetchStats() {
       try {
         const res = await fetch("/api/stats", {
-          method: "GET",
           cache: "no-store",
         });
 
@@ -61,10 +53,10 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
         const data = await res.json();
 
         if (isMounted && data.stats) {
-          setStats(data.stats as DashboardStats);
+          setStats(data.stats);
         }
       } catch (err) {
-        console.error("Failed to refresh stats", err);
+        console.error(err);
       }
     }
 
@@ -78,32 +70,32 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
     };
   }, []);
 
-  const filteredUsers = stats.recentUsers.filter((user) => {
-    const q = search.toLowerCase();
+  // SEARCH ENTIRE DATABASE
+  useEffect(() => {
+    if (!search) {
+      setResults({ users: [], assets: [] });
+      return;
+    }
 
-    return (
-      user.firstName?.toLowerCase().includes(q) ||
-      user.lastName?.toLowerCase().includes(q) ||
-      user.email?.toLowerCase().includes(q) ||
-      user.department?.toLowerCase().includes(q)
-    );
-  });
+    const delay = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search?q=${search}`);
 
-  const filteredAssets = stats.recentAssets.filter((asset) => {
-    const q = search.toLowerCase();
+        const data = await res.json();
 
-    return (
-      asset.name?.toLowerCase().includes(q) ||
-      asset.type?.toLowerCase().includes(q) ||
-      asset.brand?.toLowerCase().includes(q) ||
-      asset.status?.toLowerCase().includes(q)
-    );
-  });
+        setResults(data);
+      } catch (err) {
+        console.error("Search failed", err);
+      }
+    }, 300);
+
+    return () => clearTimeout(delay);
+  }, [search]);
 
   return (
     <motion.div
       className="flex flex-col gap-6"
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
     >
       {/* HEADER */}
@@ -142,7 +134,9 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
             <Card>
               <CardHeader>
                 <CardTitle>Recent Users</CardTitle>
-                <CardDescription>Latest users added</CardDescription>
+                <CardDescription>
+                  Latest users added to the system
+                </CardDescription>
               </CardHeader>
 
               <CardContent className="flex flex-col gap-3">
@@ -150,7 +144,7 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
                   <Link
                     key={user._id}
                     href={`/dashboard/users/${user._id}`}
-                    className="flex justify-between rounded-lg border p-3 hover:bg-muted/70"
+                    className="flex justify-between rounded-lg border p-3 hover:bg-muted/80"
                   >
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">
@@ -172,7 +166,10 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
             <Card>
               <CardHeader>
                 <CardTitle>Recent Assets</CardTitle>
-                <CardDescription>Latest assets added</CardDescription>
+
+                <CardDescription>
+                  Latest equipment added
+                </CardDescription>
               </CardHeader>
 
               <CardContent className="flex flex-col gap-3">
@@ -180,7 +177,7 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
                   <Link
                     key={asset._id}
                     href={`/dashboard/assets/${asset._id}`}
-                    className="flex justify-between rounded-lg border p-3 hover:bg-muted/70"
+                    className="flex justify-between rounded-lg border p-3 hover:bg-muted/80"
                   >
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">
@@ -189,6 +186,7 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
 
                       <span className="text-xs text-muted-foreground">
                         {asset.type ?? "Unknown type"}
+                        {asset.brand ? ` - ${asset.brand}` : ""}
                       </span>
                     </div>
 
@@ -216,16 +214,16 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
             </CardHeader>
 
             <CardContent className="flex flex-col gap-3">
-              {filteredUsers.length === 0 ? (
+              {results.users.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No matching users
+                  No users found
                 </p>
               ) : (
-                filteredUsers.map((user) => (
+                results.users.map((user: any) => (
                   <Link
                     key={user._id}
                     href={`/dashboard/users/${user._id}`}
-                    className="flex justify-between rounded-lg border p-3 hover:bg-muted/70"
+                    className="flex justify-between rounded-lg border p-3 hover:bg-muted/80"
                   >
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">
@@ -254,16 +252,16 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
             </CardHeader>
 
             <CardContent className="flex flex-col gap-3">
-              {filteredAssets.length === 0 ? (
+              {results.assets.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No matching assets
+                  No assets found
                 </p>
               ) : (
-                filteredAssets.map((asset) => (
+                results.assets.map((asset: any) => (
                   <Link
                     key={asset._id}
                     href={`/dashboard/assets/${asset._id}`}
-                    className="flex justify-between rounded-lg border p-3 hover:bg-muted/70"
+                    className="flex justify-between rounded-lg border p-3 hover:bg-muted/80"
                   >
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">
@@ -272,6 +270,7 @@ export function DashboardShell({ stats: initialStats }: DashboardShellProps) {
 
                       <span className="text-xs text-muted-foreground">
                         {asset.type ?? "Unknown type"}
+                        {asset.brand ? ` - ${asset.brand}` : ""}
                       </span>
                     </div>
 
