@@ -125,7 +125,7 @@ export function FilesPageClient({
   const filteredItems = useMemo(() => {
     if (!search.trim()) return items;
     return items.filter((item) =>
-      item.name.toLowerCase().includes(search.toLowerCase())
+      item.name.toLowerCase().includes(search.toLowerCase()),
     );
   }, [items, search]);
 
@@ -156,7 +156,7 @@ export function FilesPageClient({
 
     if (
       item.mimeType?.includes(
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       ) ||
       item.mimeType?.includes("application/vnd.ms-excel") ||
       item.name.toLowerCase().endsWith(".csv")
@@ -204,7 +204,6 @@ export function FilesPageClient({
       return;
     }
 
-    
     try {
       setUploading(true);
       const formData = new FormData();
@@ -224,7 +223,7 @@ export function FilesPageClient({
       setUploadDialogOpen(false);
 
       const input = document.getElementById(
-        "file-upload"
+        "file-upload",
       ) as HTMLInputElement | null;
       if (input) input.value = "";
 
@@ -293,7 +292,9 @@ export function FilesPageClient({
         return;
       }
 
-      toast.success(`${movingItem.type === "folder" ? "Folder" : "File"} moved`);
+      toast.success(
+        `${movingItem.type === "folder" ? "Folder" : "File"} moved`,
+      );
       setMoveDialogOpen(false);
       setMovingItem(null);
       setMoveTargetFolderId("root");
@@ -342,7 +343,7 @@ export function FilesPageClient({
     setUploadFolderId(currentFolder);
 
     const input = document.getElementById(
-      "file-upload"
+      "file-upload",
     ) as HTMLInputElement | null;
     if (input) input.value = "";
   }
@@ -455,7 +456,11 @@ export function FilesPageClient({
 
           <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
             <DialogTrigger asChild>
-              <Button type="button" variant="outline" className="cursor-pointer">
+              <Button
+                type="button"
+                variant="outline"
+                className="cursor-pointer"
+              >
                 <Upload className="mr-2 h-4 w-4" />
                 Upload File
               </Button>
@@ -474,7 +479,9 @@ export function FilesPageClient({
                   <Input
                     id="file-upload"
                     type="file"
-                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                    onChange={(e) =>
+                      setSelectedFile(e.target.files?.[0] || null)
+                    }
                   />
                 </div>
 
@@ -556,8 +563,7 @@ export function FilesPageClient({
                       ) : (
                         <a
                           href={item.path}
-                          target="_blank"
-                          rel="noreferrer"
+                          download={item.name}
                           className="font-medium hover:underline"
                         >
                           {item.name}
