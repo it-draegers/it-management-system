@@ -204,17 +204,7 @@ export function FilesPageClient({
       return;
     }
 
-    const allowedTypes = [
-      "text/csv",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "application/vnd.ms-excel",
-    ];
-
-    if (!allowedTypes.includes(selectedFile.type)) {
-      toast.error("Only CSV and Excel files are allowed");
-      return;
-    }
-
+    
     try {
       setUploading(true);
       const formData = new FormData();
@@ -484,7 +474,6 @@ export function FilesPageClient({
                   <Input
                     id="file-upload"
                     type="file"
-                    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
                     onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
                   />
                 </div>

@@ -74,7 +74,7 @@ export default function ImportUsersPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           type="file"
-          accept=".csv"
+          
           onChange={(e) => setFile(e.target.files?.[0] || null)}
         />
 
